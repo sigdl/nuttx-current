@@ -262,10 +262,6 @@ static int devif_poll_can_connections(FAR struct net_driver_s *dev,
 
       can_poll(dev, can_conn);
 
-      /* Perform any necessary conversions on outgoing packets */
-
-      devif_packet_conversion(dev, DEVIF_CAN);
-
       /* Call back into the driver */
 
       bstop = callback(dev);
