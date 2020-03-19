@@ -61,10 +61,17 @@
 
 int can_input(struct net_driver_s *dev)
 {
-  FAR struct can_conn_s *conn;
+  FAR struct can_conn_s *conn = NULL;
   int ret = OK;
 
-  conn = can_nextconn(NULL); /* FIXME Support for multiple sockets??? */
+  do
+    {
+      /* FIXME Support for multiple sockets??? */
+
+      conn = can_nextconn(conn);
+    }
+  while(conn && conn->dev != 0 && dev != conn->dev);
+
   if (conn)
     {
       uint16_t flags;

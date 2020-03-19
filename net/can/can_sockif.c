@@ -347,8 +347,6 @@ static int can_bind(FAR struct socket *psock,
 {
   FAR struct sockaddr_can *canaddr;
   FAR struct can_conn_s *conn;
-  char netdev_name[6];
-
   DEBUGASSERT(psock != NULL && psock->s_conn != NULL && addr != NULL &&
               addrlen >= sizeof(struct sockaddr_can));
 
@@ -359,11 +357,14 @@ static int can_bind(FAR struct socket *psock,
 
   /* Bind CAN device to socket */
 
-  /* TODO better support for CONFIG_NETDEV_IFINDEX */
-
+#ifdef CONFIG_NETDEV_IFINDEX
+  conn->dev = netdev_findbyindex(canaddr->can_ifindex);
+#else
+  char netdev_name[6];
   sprintf(netdev_name, "can%i", canaddr->can_ifindex);
-
   conn->dev = netdev_findbyname(&netdev_name);
+#endif
+
 
   return OK;
 }
