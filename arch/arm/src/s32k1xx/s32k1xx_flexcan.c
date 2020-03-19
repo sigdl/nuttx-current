@@ -217,12 +217,63 @@ struct txmbstats
 };
 #endif
 
+/* FlexCAN Device hardware configuration */
+
+struct flexcan_config_s
+{
+  uint32_t tx_pin;           /* GPIO configuration for TX */
+  uint32_t rx_pin;           /* GPIO configuration for RX */
+  uint32_t bus_irq;          /* BUS IRQ */
+  uint32_t error_irq;        /* ERROR IRQ */
+  uint32_t lprx_irq;         /* LPRX IRQ */
+  uint32_t mb_irq;           /* MB 0-15 IRQ */
+};
+
+/* FlexCAN device structures */
+
+#ifdef CONFIG_S32K1XX_FLEXCAN0
+static const struct flexcan_config_s s32k1xx_flexcan0_config =
+{
+  .tx_pin    = PIN_CAN0_TX_4,
+  .rx_pin    = PIN_CAN0_RX_4,
+  .bus_irq   = S32K1XX_IRQ_CAN0_BUS,
+  .error_irq = S32K1XX_IRQ_CAN0_ERROR,
+  .lprx_irq  = S32K1XX_IRQ_CAN0_LPRX,
+  .mb_irq    = S32K1XX_IRQ_CAN0_0_15,
+};
+#endif
+
+#ifdef CONFIG_S32K1XX_FLEXCAN1
+static const struct flexcan_config_s s32k1xx_flexcan1_config =
+{
+  .tx_pin    = PIN_CAN1_TX_1,
+  .rx_pin    = PIN_CAN1_RX_1,
+  .bus_irq   = S32K1XX_IRQ_CAN1_BUS,
+  .error_irq = S32K1XX_IRQ_CAN1_ERROR,
+  .lprx_irq  = 0,
+  .mb_irq    = S32K1XX_IRQ_CAN1_0_15,
+};
+#endif
+
+#ifdef CONFIG_S32K1XX_FLEXCAN2
+static const struct flexcan_config_s s32k1xx_flexcan2_config =
+{
+  .tx_pin    = PIN_CAN2_TX_1,
+  .rx_pin    = PIN_CAN2_RX_1,
+  .bus_irq   = S32K1XX_IRQ_CAN2_BUS,
+  .error_irq = S32K1XX_IRQ_CAN2_ERROR,
+  .lprx_irq  = 0,
+  .mb_irq    = S32K1XX_IRQ_CAN2_0_15,
+};
+#endif
+
 /* The s32k1xx_driver_s encapsulates all state information for a single
  * hardware interface
  */
 
 struct s32k1xx_driver_s
 {
+  uint32_t base;                /* FLEXCAN base address */
   bool bifup;                   /* true:ifup false:ifdown */
   uint8_t txtail;               /* The oldest busy TX descriptor */
   uint8_t txhead;               /* The next TX descriptor to use */
@@ -251,6 +302,8 @@ struct s32k1xx_driver_s
   struct mb_s *rx;
   struct mb_s *tx;
 
+  struct flexcan_config_s *config;
+
 #ifdef CONFIG_NET_CAN_RAW_TX_DEADLINE
   struct txmbstats txmb[TXMBCOUNT];
 #endif
@@ -259,8 +312,11 @@ struct s32k1xx_driver_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
+#define S32K1XX_CAN_NCANIFS    (CONFIG_S32K1XX_FLEXCAN0 \
+                                + CONFIG_S32K1XX_FLEXCAN1 \
+                                + CONFIG_S32K1XX_FLEXCAN2)
 
-static struct s32k1xx_driver_s g_flexcan[CONFIG_S32K1XX_ENET_NETHIFS];
+static struct s32k1xx_driver_s g_flexcan[S32K1XX_CAN_NCANIFS];
 
 #ifdef CAN_FD
 static uint8_t g_tx_pool[(sizeof(struct canfd_frame)+MSG_DATA)*POOL_SIZE];
@@ -306,9 +362,10 @@ static int  s32k1xx_txpoll(struct net_driver_s *dev);
 
 /* Helper functions */
 
-static void s32k1xx_setenable(uint32_t enable);
-static void s32k1xx_setfreeze(uint32_t freeze);
-static uint32_t s32k1xx_waitmcr_change(uint32_t mask,
+static void s32k1xx_setenable(uint32_t base, uint32_t enable);
+static void s32k1xx_setfreeze(uint32_t base, uint32_t freeze);
+static uint32_t s32k1xx_waitmcr_change(uint32_t base,
+                                       uint32_t mask,
                                        uint32_t target_state);
 
 /* Interrupt handling */
@@ -412,10 +469,11 @@ static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
   /* Attempt to write frame */
 
   uint32_t mbi = 0;
-  if ((getreg32(S32K1XX_CAN0_ESR2) & (CAN_ESR2_IMB | CAN_ESR2_VPS)) ==
+  if ((getreg32(priv->base + S32K1XX_CAN_ESR2_OFFSET) &
+      (CAN_ESR2_IMB | CAN_ESR2_VPS)) ==
       (CAN_ESR2_IMB | CAN_ESR2_VPS))
     {
-      mbi  = ((getreg32(S32K1XX_CAN0_ESR2) &
+      mbi  = ((getreg32(priv->base + S32K1XX_CAN_ESR2_OFFSET) &
         CAN_ESR2_LPTM_MASK) >> CAN_ESR2_LPTM_SHIFT);
       mbi -= RXMBCOUNT;
     }
@@ -426,7 +484,7 @@ static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
     {
       if (priv->tx[mbi].cs.code != CAN_TXMB_DATAORREMOTE)
         {
-          putreg32(mb_bit, S32K1XX_CAN0_IFLAG1);
+          putreg32(mb_bit, priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
           break;
         }
 
@@ -577,9 +635,9 @@ static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
   mb->cs = cs; /* Go. */
 
   uint32_t regval;
-  regval = getreg32(S32K1XX_CAN0_IMASK1);
+  regval = getreg32(priv->base + S32K1XX_CAN_IMASK1_OFFSET);
   regval |= mb_bit;
-  putreg32(regval, S32K1XX_CAN0_IMASK1);
+  putreg32(regval, priv->base + S32K1XX_CAN_IMASK1_OFFSET);
 
   /* Increment statistics */
 
@@ -759,9 +817,9 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
 
           /* Clear MB interrupt flag */
 
-          regval  = getreg32(S32K1XX_CAN0_IFLAG1);
+          regval  = getreg32(priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
           regval |= (0x80000000 >> mb_index);
-          putreg32(regval, S32K1XX_CAN0_IFLAG1);
+          putreg32(regval, priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
 
           /* Copy the buffer pointer to priv->dev..  Set amount of data
            * in priv->dev.d_len
@@ -796,9 +854,9 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
 
           /* Clear MB interrupt flag */
 
-          regval  = getreg32(S32K1XX_CAN0_IFLAG1);
+          regval  = getreg32(priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
           regval |= (1 << mb_index);
-          putreg32(regval, S32K1XX_CAN0_IFLAG1);
+          putreg32(regval, priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
 
           /* Copy the buffer pointer to priv->dev..  Set amount of data
            * in priv->dev.d_len
@@ -856,7 +914,7 @@ static void s32k1xx_txdone(FAR struct s32k1xx_driver_s *priv, uint32_t flags)
     {
       if (flags & mb_bit)
         {
-          putreg32(mb_bit, S32K1XX_CAN0_IFLAG1);
+          putreg32(mb_bit, priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
           flags &= ~mb_bit;
           NETDEV_TXDONE(&priv->dev);
 #ifdef TX_TIMEOUT_WQ
@@ -902,9 +960,9 @@ static int s32k1xx_flexcan_interrupt(int irq, FAR void *context,
                                      FAR void *arg)
 {
   #warning Missing logic
-  FAR struct s32k1xx_driver_s *priv = &g_flexcan[0];
+  FAR struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
   uint32_t flags;
-  flags  = getreg32(S32K1XX_CAN0_IFLAG1);
+  flags  = getreg32(priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
   flags &= IFLAG1_RX;
 
   if (flags)
@@ -912,7 +970,7 @@ static int s32k1xx_flexcan_interrupt(int irq, FAR void *context,
       s32k1xx_receive(priv, flags);
     }
 
-  flags  = getreg32(S32K1XX_CAN0_IFLAG1);
+  flags  = getreg32(priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
   flags &= IFLAG1_TX;
 
   if (flags)
@@ -1070,53 +1128,55 @@ static void s32k1xx_txtimeout_expiry(int argc, uint32_t arg, ...)
 
 #endif
 
-static void s32k1xx_setenable(uint32_t enable)
+static void s32k1xx_setenable(uint32_t base, uint32_t enable)
 {
   uint32_t regval;
 
   if (enable)
     {
-      regval  = getreg32(S32K1XX_CAN0_MCR);
+      regval  = getreg32(base + S32K1XX_CAN_MCR_OFFSET);
       regval &= ~(CAN_MCR_MDIS);
-      putreg32(regval, S32K1XX_CAN0_MCR);
+      putreg32(regval, base + S32K1XX_CAN_MCR_OFFSET);
     }
   else
     {
-      regval  = getreg32(S32K1XX_CAN0_MCR);
+      regval  = getreg32(base + S32K1XX_CAN_MCR_OFFSET);
       regval |= CAN_MCR_MDIS;
-      putreg32(regval, S32K1XX_CAN0_MCR);
+      putreg32(regval, base + S32K1XX_CAN_MCR_OFFSET);
     }
 
-  s32k1xx_waitmcr_change(CAN_MCR_LPMACK, 1);
+  s32k1xx_waitmcr_change(base, CAN_MCR_LPMACK, 1);
 }
 
-static void s32k1xx_setfreeze(uint32_t freeze)
+static void s32k1xx_setfreeze(uint32_t base, uint32_t freeze)
 {
   uint32_t regval;
   if (freeze)
     {
       /* Enter freeze mode */
 
-      regval  = getreg32(S32K1XX_CAN0_MCR);
+      regval  = getreg32(base + S32K1XX_CAN_MCR_OFFSET);
       regval |= (CAN_MCR_HALT | CAN_MCR_FRZ);
-      putreg32(regval, S32K1XX_CAN0_MCR);
+      putreg32(regval, base + S32K1XX_CAN_MCR_OFFSET);
     }
   else
     {
       /* Exit freeze mode */
 
-      regval  = getreg32(S32K1XX_CAN0_MCR);
+      regval  = getreg32(base + S32K1XX_CAN_MCR_OFFSET);
       regval &= ~(CAN_MCR_HALT | CAN_MCR_FRZ);
-      putreg32(regval, S32K1XX_CAN0_MCR);
+      putreg32(regval, base + S32K1XX_CAN_MCR_OFFSET);
     }
 }
 
-static uint32_t s32k1xx_waitmcr_change(uint32_t mask, uint32_t target_state)
+static uint32_t s32k1xx_waitmcr_change(uint32_t base, uint32_t mask,
+                                       uint32_t target_state)
 {
   const unsigned timeout = 1000;
   for (unsigned wait_ack = 0; wait_ack < timeout; wait_ack++)
     {
-      const bool state = (getreg32(S32K1XX_CAN0_MCR) & mask) != 0;
+      const bool state = (getreg32(base + S32K1XX_CAN_MCR_OFFSET) & mask)
+          != 0;
       if (state == target_state)
         {
           return true;
@@ -1128,9 +1188,10 @@ static uint32_t s32k1xx_waitmcr_change(uint32_t mask, uint32_t target_state)
   return false;
 }
 
-static uint32_t s32k1xx_waitfreezeack_change(uint32_t target_state)
+static uint32_t s32k1xx_waitfreezeack_change(uint32_t base,
+                                             uint32_t target_state)
 {
-  return s32k1xx_waitmcr_change(CAN_MCR_FRZACK, target_state);
+  return s32k1xx_waitmcr_change(base, CAN_MCR_FRZACK, target_state);
 }
 
 /****************************************************************************
@@ -1360,22 +1421,22 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
 
   s32k1xx_pinconfig(PIN_PORTD | PIN31 | GPIO_OUTPUT);
 
-  s32k1xx_setenable(0);
+  s32k1xx_setenable(priv->base, 0);
 
   /* Set SYS_CLOCK src */
 
-  regval  = getreg32(S32K1XX_CAN0_CTRL1);
+  regval  = getreg32(priv->base + S32K1XX_CAN_CTRL1_OFFSET);
   regval |= CAN_CTRL1_CLKSRC;
-  putreg32(regval, S32K1XX_CAN0_CTRL1);
+  putreg32(regval, priv->base + S32K1XX_CAN_CTRL1_OFFSET);
 
-  s32k1xx_setenable(1);
+  s32k1xx_setenable(priv->base, 1);
 
   s32k1xx_reset(priv);
 
   /* Enter freeze mode */
 
-  s32k1xx_setfreeze(1);
-  if (!s32k1xx_waitfreezeack_change(1))
+  s32k1xx_setfreeze(priv->base, 1);
+  if (!s32k1xx_waitfreezeack_change(priv->base, 1))
     {
       ninfo("FLEXCAN: freeze fail\r\n");
       return -1;
@@ -1383,7 +1444,7 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
 
   /* Based on 80 MHz BUS clock calc through S32DS */
 
-  regval  = getreg32(S32K1XX_CAN0_CBT);
+  regval  = getreg32(priv->base + S32K1XX_CAN_CBT_OFFSET);
   regval |= CAN_CBT_BTF |         /* Enable extended bit timing
                                    * configurations for CAN-FD for setting up
                                    * separately nominal and data phase */
@@ -1392,39 +1453,39 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
             CAN_CBT_EPSEG1(6) |   /* Phase buffer segment 1 of 6 time quantas */
             CAN_CBT_EPSEG2(3) |   /* Phase buffer segment 2 of 3 time quantas */
             CAN_CBT_ERJW(1);      /* Resynchronization jump width */
-  putreg32(regval, S32K1XX_CAN0_CBT);
+  putreg32(regval, priv->base + S32K1XX_CAN_CBT_OFFSET);
 
 #ifdef CAN_FD
   /* Enable CAN FD feature */
 
-  regval  = getreg32(S32K1XX_CAN0_MCR);
+  regval  = getreg32(priv->base + S32K1XX_CAN_MCR_OFFSET);
   regval |= CAN_MCR_FDEN;
-  putreg32(regval, S32K1XX_CAN0_MCR);
+  putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
 
   /* Based on 80 MHz BUS clock calc through S32DS */
 
-  regval  = getreg32(S32K1XX_CAN0_FDCBT);
+  regval  = getreg32(priv->base + S32K1XX_CAN_FDCBT_OFFSET);
   regval |= CAN_FDCBT_FPRESDIV(0) |  /* Prescaler divisor factor of 1 */
             CAN_FDCBT_FPROPSEG(15) | /* Propagation segment of 7 time quantas
                                       * (only register that doesn't add 1) */
             CAN_FDCBT_FPSEG1(1) |    /* Phase buffer segment 1 of 7 time quantas */
             CAN_FDCBT_FPSEG2(1) |    /* Phase buffer segment 2 of 5 time quantas */
             CAN_FDCBT_FRJW(1);       /* Resynchorinzation jump width same as PSEG2 */
-  putreg32(regval, S32K1XX_CAN0_FDCBT);
+  putreg32(regval, priv->base + S32K1XX_CAN_FDCBT_OFFSET);
 
   /* Additional CAN-FD configurations */
 
-  regval  = getreg32(S32K1XX_CAN0_FDCTRL);
+  regval  = getreg32(priv->base + S32K1XX_CAN_FDCTRL_OFFSET);
 
   regval |= CAN_FDCTRL_FDRATE |     /* Enable bit rate switch in data phase of frame */
             CAN_FDCTRL_TDCEN |      /* Enable transceiver delay compensation */
             CAN_FDCTRL_TDCOFF(5) |  /* Setup 5 cycles for data phase sampling delay */
             CAN_FDCTRL_MBDSR0(3);   /* Setup 64 bytes per message buffer (7 MB's) */
-  putreg32(regval, S32K1XX_CAN0_FDCTRL);
+  putreg32(regval, priv->base + S32K1XX_CAN_FDCTRL_OFFSET);
 
-  regval  = getreg32(S32K1XX_CAN0_CTRL2);
+  regval  = getreg32(priv->base + S32K1XX_CAN_CTRL2_OFFSET);
   regval |= CAN_CTRL2_ISOCANFDEN;
-  putreg32(regval, S32K1XX_CAN0_CTRL2);
+  putreg32(regval, priv->base + S32K1XX_CAN_CTRL2_OFFSET);
 #endif
 
   for (i = TXMBCOUNT; i < TOTALMBCOUNT; i++)
@@ -1434,11 +1495,11 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
       /* FIXME sometimes we get a hard fault here */
     }
 
-  putreg32(0x0, S32K1XX_CAN0_RXFGMASK);
+  putreg32(0x0, priv->base + S32K1XX_CAN_RXFGMASK_OFFSET);
 
   for (i = 0; i < TOTALMBCOUNT; i++)
     {
-      putreg32(0, S32K1XX_CAN0_RXIMR(i));
+      putreg32(0, priv->base + S32K1XX_CAN_RXIMR_OFFSET(i));
     }
 
   for (i = 0; i < RXMBCOUNT; i++)
@@ -1453,13 +1514,13 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
       priv->rx[i].cs.rtr = 0x0;
     }
 
-  putreg32(IFLAG1_RX, S32K1XX_CAN0_IFLAG1);
-  putreg32(IFLAG1_RX, S32K1XX_CAN0_IMASK1);
+  putreg32(IFLAG1_RX, priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
+  putreg32(IFLAG1_RX, priv->base + S32K1XX_CAN_IMASK1_OFFSET);
 
   /* Exit freeze mode */
 
-  s32k1xx_setfreeze(0);
-  if (!s32k1xx_waitfreezeack_change(0))
+  s32k1xx_setfreeze(priv->base, 0);
+  if (!s32k1xx_waitfreezeack_change(priv->base, 0))
     {
       ninfo("FLEXCAN: unfreeze fail\r\n");
       return -1;
@@ -1489,11 +1550,11 @@ static void s32k1xx_reset(struct s32k1xx_driver_s *priv)
   uint32_t regval;
   uint32_t i;
 
-  regval  = getreg32(S32K1XX_CAN0_MCR);
+  regval  = getreg32(priv->base + S32K1XX_CAN_MCR_OFFSET);
   regval |= CAN_MCR_SOFTRST;
-  putreg32(regval, S32K1XX_CAN0_MCR);
+  putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
 
-  if (!s32k1xx_waitmcr_change(CAN_MCR_SOFTRST, 0))
+  if (!s32k1xx_waitmcr_change(priv->base, CAN_MCR_SOFTRST, 0))
     {
       nerr("Reset failed");
       return;
@@ -1501,9 +1562,9 @@ static void s32k1xx_reset(struct s32k1xx_driver_s *priv)
 
   /* TODO calculate TASD */
 
-  regval  = getreg32(S32K1XX_CAN0_MCR);
+  regval  = getreg32(priv->base + S32K1XX_CAN_MCR_OFFSET);
   regval &= ~(CAN_MCR_SUPV);
-  putreg32(regval, S32K1XX_CAN0_MCR);
+  putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
 
   /* Initialize all MB rx and tx */
 
@@ -1517,27 +1578,27 @@ static void s32k1xx_reset(struct s32k1xx_driver_s *priv)
       priv->rx[i].data[1].w00 = 0x0;
     }
 
-  regval  = getreg32(S32K1XX_CAN0_MCR);
+  regval  = getreg32(priv->base + S32K1XX_CAN_MCR_OFFSET);
   regval |= CAN_MCR_SLFWAK | CAN_MCR_WRNEN | CAN_MCR_SRXDIS |
             CAN_MCR_IRMQ | CAN_MCR_AEN |
             (((TOTALMBCOUNT - 1) << CAN_MCR_MAXMB_SHIFT) &
             CAN_MCR_MAXMB_MASK);
-  putreg32(regval, S32K1XX_CAN0_MCR);
+  putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
 
   regval  = CAN_CTRL2_RRS | CAN_CTRL2_EACEN; /* FIXME TASD */
-  putreg32(regval, S32K1XX_CAN0_CTRL2);
+  putreg32(regval, priv->base + S32K1XX_CAN_CTRL2_OFFSET);
 
   for (i = 0; i < TOTALMBCOUNT; i++)
     {
-      putreg32(0, S32K1XX_CAN0_RXIMR(i));
+      putreg32(0, priv->base + S32K1XX_CAN_RXIMR_OFFSET(i));
     }
 
   /* Filtering catchall */
 
-  putreg32(0x3fffffff, S32K1XX_CAN0_RX14MASK);
-  putreg32(0x3fffffff, S32K1XX_CAN0_RX15MASK);
-  putreg32(0x3fffffff, S32K1XX_CAN0_RXMGMASK);
-  putreg32(0x0, S32K1XX_CAN0_RXFGMASK);
+  putreg32(0x3fffffff, priv->base + S32K1XX_CAN_RX14MASK_OFFSET);
+  putreg32(0x3fffffff, priv->base + S32K1XX_CAN_RX15MASK_OFFSET);
+  putreg32(0x3fffffff, priv->base + S32K1XX_CAN_RXMGMASK_OFFSET);
+  putreg32(0x0, priv->base + S32K1XX_CAN_RXFGMASK_OFFSET);
 }
 
 /****************************************************************************
@@ -1566,22 +1627,45 @@ int s32k1xx_netinitialize(int intf)
   struct s32k1xx_driver_s *priv;
   int ret;
 
-  /* FIXME dynamic board config */
-
-  s32k1xx_pinconfig(PIN_CAN0_TX_4);
-  s32k1xx_pinconfig(PIN_CAN0_RX_4);
-
   priv = &g_flexcan[intf];
 
-  ninfo("initialize\r\n");
+  memset(priv, 0, sizeof(struct s32k1xx_driver_s));
 
-  /* Get the interface structure associated with this interface number. */
+  switch (intf)
+    {
+#ifdef CONFIG_S32K1XX_FLEXCAN0
+    case 0:
+      priv->base   = S32K1XX_FLEXCAN0_BASE;
+      priv->config = &s32k1xx_flexcan0_config;
+      break;
+#endif
 
-#warning Missing logic
+#ifdef CONFIG_S32K1XX_FLEXCAN1
+    case 1:
+      priv->base   = S32K1XX_FLEXCAN1_BASE;
+      priv->config = &s32k1xx_flexcan1_config;
+      break;
+#endif
+
+#ifdef CONFIG_S32K1XX_FLEXCAN2
+    case 2:
+      priv->base   = S32K1XX_FLEXCAN2_BASE;
+      priv->config = &s32k1xx_flexcan2_config;
+      break;
+#endif
+
+    default:
+      return NULL;
+    }
+
+  /* FIXME dynamic board config */
+
+  s32k1xx_pinconfig(priv->config->tx_pin);
+  s32k1xx_pinconfig(priv->config->rx_pin);
 
   /* Attach the flexcan interrupt handler */
 
-  if (irq_attach(S32K1XX_IRQ_CAN0_BUS, s32k1xx_flexcan_interrupt, NULL))
+  if (irq_attach(priv->config->bus_irq, s32k1xx_flexcan_interrupt, priv))
     {
       /* We could not attach the ISR to the interrupt */
 
@@ -1589,7 +1673,7 @@ int s32k1xx_netinitialize(int intf)
       return -EAGAIN;
     }
 
-  if (irq_attach(S32K1XX_IRQ_CAN0_ERROR, s32k1xx_flexcan_interrupt, NULL))
+  if (irq_attach(priv->config->error_irq, s32k1xx_flexcan_interrupt, priv))
     {
       /* We could not attach the ISR to the interrupt */
 
@@ -1597,7 +1681,8 @@ int s32k1xx_netinitialize(int intf)
       return -EAGAIN;
     }
 
-  if (irq_attach(S32K1XX_IRQ_CAN0_LPRX, s32k1xx_flexcan_interrupt, NULL))
+  if (priv->config->lprx_irq > 0 &&
+      irq_attach(priv->config->lprx_irq, s32k1xx_flexcan_interrupt, priv))
     {
       /* We could not attach the ISR to the interrupt */
 
@@ -1605,7 +1690,7 @@ int s32k1xx_netinitialize(int intf)
       return -EAGAIN;
     }
 
-  if (irq_attach(S32K1XX_IRQ_CAN0_0_15, s32k1xx_flexcan_interrupt, NULL))
+  if (irq_attach(priv->config->mb_irq, s32k1xx_flexcan_interrupt, priv))
     {
       /* We could not attach the ISR to the interrupt */
 
@@ -1615,14 +1700,13 @@ int s32k1xx_netinitialize(int intf)
 
   /* Initialize the driver structure */
 
-  memset(priv, 0, sizeof(struct s32k1xx_driver_s));
   priv->dev.d_ifup    = s32k1xx_ifup;      /* I/F up (new IP address) callback */
   priv->dev.d_ifdown  = s32k1xx_ifdown;    /* I/F down callback */
   priv->dev.d_txavail = s32k1xx_txavail;   /* New TX data callback */
 #ifdef CONFIG_NETDEV_IOCTL
   priv->dev.d_ioctl   = s32k1xx_ioctl;     /* Support CAN ioctl() calls */
 #endif
-  priv->dev.d_private = (void *)g_flexcan; /* Used to recover private state from dev */
+  priv->dev.d_private = (void *)priv;      /* Used to recover private state from dev */
 
 #ifdef WORK_QUEUE
   /* Create a watchdog for timing polling for and timing of transmissions */
@@ -1636,8 +1720,8 @@ int s32k1xx_netinitialize(int intf)
     }
 
 #endif
-  priv->rx            = (struct mb_s *)(S32K1XX_CAN0_MB);
-  priv->tx            = (struct mb_s *)(S32K1XX_CAN0_MB +
+  priv->rx            = (struct mb_s *)(priv->base + S32K1XX_CAN_MB_OFFSET);
+  priv->tx            = (struct mb_s *)(priv->base + S32K1XX_CAN_MB_OFFSET +
                           (sizeof(struct mb_s) * RXMBCOUNT));
 
   /* Put the interface in the down state.  This usually amounts to resetting
@@ -1667,12 +1751,20 @@ int s32k1xx_netinitialize(int intf)
  *
  ****************************************************************************/
 
-/* FIXME CONFIG_S32K1XX_FLEXCAN_NETHIFS == 1 && */
-
 #if !defined(CONFIG_NETDEV_LATEINIT)
 void up_netinitialize(void)
 {
+#ifdef CONFIG_S32K1XX_FLEXCAN0
   s32k1xx_netinitialize(0);
+#endif
+
+#ifdef CONFIG_S32K1XX_FLEXCAN1
+  s32k1xx_netinitialize(1);
+#endif
+
+#ifdef CONFIG_S32K1XX_FLEXCAN2
+  s32k1xx_netinitialize(2);
+#endif
 }
 #endif
 
