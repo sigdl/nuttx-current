@@ -303,8 +303,12 @@ int up_rtc_settime(FAR const struct timespec *ts)
   uint32_t prescaler;
 
   seconds = ts->tv_sec;
+#ifdef CONFIG_RTC_HIRES
   prescaler = ts->tv_nsec * (CONFIG_RTC_FREQUENCY / 1000000000);
-
+#else
+  prescaler = 0;
+#endif
+  
   flags = enter_critical_section();
 
   s32k1xx_rtc_disable();

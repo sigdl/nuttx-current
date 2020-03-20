@@ -49,6 +49,8 @@
 #include "s32k1xx_pin.h"
 #include "s32k1xx_flexcan.h"
 
+#include <arch/board/board.h>
+
 #ifdef CONFIG_NET_CMSG
 #include <sys/time.h>
 #endif
@@ -223,6 +225,8 @@ struct flexcan_config_s
 {
   uint32_t tx_pin;           /* GPIO configuration for TX */
   uint32_t rx_pin;           /* GPIO configuration for RX */
+  uint32_t enable_pin;       /* Optional enable pin */
+  uint32_t enable_high;      /* Optional enable high/low */
   uint32_t bus_irq;          /* BUS IRQ */
   uint32_t error_irq;        /* ERROR IRQ */
   uint32_t lprx_irq;         /* LPRX IRQ */
@@ -234,32 +238,53 @@ struct flexcan_config_s
 #ifdef CONFIG_S32K1XX_FLEXCAN0
 static const struct flexcan_config_s s32k1xx_flexcan0_config =
 {
-  .tx_pin    = PIN_CAN0_TX_4,
-  .rx_pin    = PIN_CAN0_RX_4,
-  .bus_irq   = S32K1XX_IRQ_CAN0_BUS,
-  .error_irq = S32K1XX_IRQ_CAN0_ERROR,
-  .lprx_irq  = S32K1XX_IRQ_CAN0_LPRX,
-  .mb_irq    = S32K1XX_IRQ_CAN0_0_15,
+  .tx_pin      = PIN_CAN0_TX,
+  .rx_pin      = PIN_CAN0_RX,
+#ifdef PIN_CAN0_ENABLE
+  .enable_pin  = PIN_CAN0_ENABLE,
+  .enable_high = CAN0_ENABLE_OUT,
+#else
+  .enable_pin  = 0,
+  .enable_high = 0,
+#endif
+  .bus_irq     = S32K1XX_IRQ_CAN0_BUS,
+  .error_irq   = S32K1XX_IRQ_CAN0_ERROR,
+  .lprx_irq    = S32K1XX_IRQ_CAN0_LPRX,
+  .mb_irq      = S32K1XX_IRQ_CAN0_0_15,
 };
 #endif
 
 #ifdef CONFIG_S32K1XX_FLEXCAN1
 static const struct flexcan_config_s s32k1xx_flexcan1_config =
 {
-  .tx_pin    = PIN_CAN1_TX_1,
-  .rx_pin    = PIN_CAN1_RX_1,
-  .bus_irq   = S32K1XX_IRQ_CAN1_BUS,
-  .error_irq = S32K1XX_IRQ_CAN1_ERROR,
-  .lprx_irq  = 0,
-  .mb_irq    = S32K1XX_IRQ_CAN1_0_15,
+  .tx_pin      = PIN_CAN1_TX,
+  .rx_pin      = PIN_CAN1_RX,
+#ifdef PIN_CAN1_ENABLE
+  .enable_pin  = PIN_CAN1_ENABLE,
+  .enable_high = CAN1_ENABLE_OUT,
+#else
+  .enable_pin  = 0,
+  .enable_high = 0,
+#endif
+  .bus_irq     = S32K1XX_IRQ_CAN1_BUS,
+  .error_irq   = S32K1XX_IRQ_CAN1_ERROR,
+  .lprx_irq    = 0,
+  .mb_irq      = S32K1XX_IRQ_CAN1_0_15,
 };
 #endif
 
 #ifdef CONFIG_S32K1XX_FLEXCAN2
 static const struct flexcan_config_s s32k1xx_flexcan2_config =
 {
-  .tx_pin    = PIN_CAN2_TX_1,
-  .rx_pin    = PIN_CAN2_RX_1,
+  .tx_pin    = PIN_CAN2_TX,
+  .rx_pin    = PIN_CAN2_RX,
+#ifdef PIN_CAN2_ENABLE
+  .enable_pin = PIN_CAN0_ENABLE,
+  .rx_pin     = CAN0_ENABLE_HIGH,
+#else
+  .enable_pin = 0,
+  .rx_pin     = 0,
+#endif
   .bus_irq   = S32K1XX_IRQ_CAN2_BUS,
   .error_irq = S32K1XX_IRQ_CAN2_ERROR,
   .lprx_irq  = 0,
@@ -312,11 +337,18 @@ struct s32k1xx_driver_s
 /****************************************************************************
  * Private Data
  ****************************************************************************/
-#define S32K1XX_CAN_NCANIFS    (CONFIG_S32K1XX_FLEXCAN0 \
-                                + CONFIG_S32K1XX_FLEXCAN1 \
-                                + CONFIG_S32K1XX_FLEXCAN2)
 
-static struct s32k1xx_driver_s g_flexcan[S32K1XX_CAN_NCANIFS];
+#ifdef CONFIG_S32K1XX_FLEXCAN0
+static struct s32k1xx_driver_s g_flexcan0;
+#endif
+
+#ifdef CONFIG_S32K1XX_FLEXCAN1
+static struct s32k1xx_driver_s g_flexcan1;
+#endif
+
+#ifdef CONFIG_S32K1XX_FLEXCAN2
+static struct s32k1xx_driver_s g_flexcan2;
+#endif
 
 #ifdef CAN_FD
 static uint8_t g_tx_pool[(sizeof(struct canfd_frame)+MSG_DATA)*POOL_SIZE];
@@ -1241,10 +1273,14 @@ static int s32k1xx_ifup(struct net_driver_s *dev)
 
   /* Set interrupts */
 
-  up_enable_irq(S32K1XX_IRQ_CAN0_BUS);
-  up_enable_irq(S32K1XX_IRQ_CAN0_ERROR);
-  up_enable_irq(S32K1XX_IRQ_CAN0_LPRX);
-  up_enable_irq(S32K1XX_IRQ_CAN0_0_15);
+  up_enable_irq(priv->config->bus_irq);
+  up_enable_irq(priv->config->error_irq);
+  if (priv->config->lprx_irq > 0)
+    {
+      up_enable_irq(priv->config->lprx_irq);
+    }
+
+  up_enable_irq(priv->config->mb_irq);
 
   return OK;
 }
@@ -1627,14 +1663,12 @@ int s32k1xx_netinitialize(int intf)
   struct s32k1xx_driver_s *priv;
   int ret;
 
-  priv = &g_flexcan[intf];
-
-  memset(priv, 0, sizeof(struct s32k1xx_driver_s));
-
   switch (intf)
     {
 #ifdef CONFIG_S32K1XX_FLEXCAN0
     case 0:
+      priv         = &g_flexcan0;
+      memset(priv, 0, sizeof(struct s32k1xx_driver_s));
       priv->base   = S32K1XX_FLEXCAN0_BASE;
       priv->config = &s32k1xx_flexcan0_config;
       break;
@@ -1642,6 +1676,8 @@ int s32k1xx_netinitialize(int intf)
 
 #ifdef CONFIG_S32K1XX_FLEXCAN1
     case 1:
+      priv         = &g_flexcan1;
+      memset(priv, 0, sizeof(struct s32k1xx_driver_s));
       priv->base   = S32K1XX_FLEXCAN1_BASE;
       priv->config = &s32k1xx_flexcan1_config;
       break;
@@ -1649,6 +1685,8 @@ int s32k1xx_netinitialize(int intf)
 
 #ifdef CONFIG_S32K1XX_FLEXCAN2
     case 2:
+      priv         = &g_flexcan2;
+      memset(priv, 0, sizeof(struct s32k1xx_driver_s));
       priv->base   = S32K1XX_FLEXCAN2_BASE;
       priv->config = &s32k1xx_flexcan2_config;
       break;
@@ -1658,10 +1696,13 @@ int s32k1xx_netinitialize(int intf)
       return NULL;
     }
 
-  /* FIXME dynamic board config */
-
   s32k1xx_pinconfig(priv->config->tx_pin);
   s32k1xx_pinconfig(priv->config->rx_pin);
+  if (priv->config->enable_pin > 0)
+    {
+      s32k1xx_pinconfig(priv->config->enable_pin);
+      s32k1xx_gpiowrite(priv->config->enable_pin, priv->config->enable_high);
+    }
 
   /* Attach the flexcan interrupt handler */
 
@@ -1681,13 +1722,16 @@ int s32k1xx_netinitialize(int intf)
       return -EAGAIN;
     }
 
-  if (priv->config->lprx_irq > 0 &&
-      irq_attach(priv->config->lprx_irq, s32k1xx_flexcan_interrupt, priv))
+  if (priv->config->lprx_irq > 0)
     {
-      /* We could not attach the ISR to the interrupt */
+      if (irq_attach(priv->config->lprx_irq,
+                     s32k1xx_flexcan_interrupt, priv))
+        {
+          /* We could not attach the ISR to the interrupt */
 
-      nerr("ERROR: Failed to attach CAN LPRX IRQ\n");
-      return -EAGAIN;
+          nerr("ERROR: Failed to attach CAN LPRX IRQ\n");
+          return -EAGAIN;
+        }
     }
 
   if (irq_attach(priv->config->mb_irq, s32k1xx_flexcan_interrupt, priv))

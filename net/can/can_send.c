@@ -368,6 +368,7 @@ ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg,
   state.snd_buflen    = msg->msg_iov->iov_len;  /* bytes to send */
   state.snd_buffer    = msg->msg_iov->iov_base; /* Buffer to send from */
 
+#ifdef CONFIG_NET_CAN_RAW_TX_DEADLINE
   if (msg->msg_controllen > sizeof(struct cmsghdr))
     {
       struct cmsghdr *cmsg = CMSG_FIRSTHDR(msg);
@@ -379,6 +380,7 @@ ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg,
           state.pr_msglen     = cmsg->cmsg_len;  /* len of cmsg data */
         }
     }
+#endif
 
   /* Allocate resource to receive a callback */
 
