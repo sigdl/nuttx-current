@@ -550,7 +550,7 @@
 /* CAN FD Control register (FDCTRL) */
 #define CAN_FDCTRL_TDCVAL(x)          (((uint32_t)(((uint32_t)(x)) << 0))  & 0x3F)
 #define CAN_FDCTRL_TDCOFF(x)          (((uint32_t)(((uint32_t)(x)) << 8))  & 0x1F00)
-#define CAN_FDCTRL_TDCEN              (1 << 14) /* Bit 14: TDC fail */
+#define CAN_FDCTRL_TDCF               (1 << 14) /* Bit 14: TDC fail */
 #define CAN_FDCTRL_TDCEN              (1 << 15) /* Bit 15: TDC enable */
 #define CAN_FDCTRL_MBDSR0(x)          (((uint32_t)(((uint32_t)(x)) << 16)) & 0x30000)
 #define CAN_FDCTRL_FDRATE             (1 << 31) /* Bit 31: FD rate */

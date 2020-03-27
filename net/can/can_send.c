@@ -298,7 +298,6 @@ ssize_t psock_can_send(FAR struct socket *psock, FAR const void *buf,
  * Input Parameters:
  *   psock    An instance of the internal socket structure.
  *   msg      msg to send
- *   len      Length of msg to send
  *
  * Returned Value:
  *   On success, returns the number of characters sent.  On  error,
@@ -307,8 +306,7 @@ ssize_t psock_can_send(FAR struct socket *psock, FAR const void *buf,
  *
  ****************************************************************************/
 
-ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg,
-                       size_t len)
+ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg)
 {
   FAR struct net_driver_s *dev;
   FAR struct can_conn_s *conn;

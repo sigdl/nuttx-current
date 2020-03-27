@@ -71,7 +71,7 @@ static ssize_t can_sendto(FAR struct socket *psock, FAR const void *buf,
               socklen_t tolen);
 #ifdef CONFIG_NET_CMSG
 static ssize_t can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg,
-                    size_t len, int flags);
+                    int flags);
 #endif
 static int can_close(FAR struct socket *psock);
 
@@ -360,9 +360,9 @@ static int can_bind(FAR struct socket *psock,
 #ifdef CONFIG_NETDEV_IFINDEX
   conn->dev = netdev_findbyindex(canaddr->can_ifindex);
 #else
-  char netdev_name[6];
-  sprintf(netdev_name, "can%i", canaddr->can_ifindex);
-  conn->dev = netdev_findbyname(&netdev_name);
+  char netdev_name[5] = "can0";
+  netdev_name[3] += canaddr->can_ifindex;
+  conn->dev = netdev_findbyname((const char *)&netdev_name);
 #endif
 
 
@@ -395,28 +395,7 @@ static int can_getsockname(FAR struct socket *psock,
                            FAR struct sockaddr *addr,
                            FAR socklen_t *addrlen)
 {
-  FAR struct sockaddr_can *canaddr;
-
-  DEBUGASSERT(psock != NULL && psock->s_conn != NULL && addr != NULL &&
-              addrlen != NULL && *addrlen >= sizeof(struct sockaddr_can));
-
-  /* Return the address information in the address structure */
-
-  canaddr = (FAR struct sockaddr_can *)addr;
-  memset(canaddr, 0, sizeof(struct sockaddr_can));
-
-  canaddr->can_family = AF_CAN;
-
-  if (_SS_ISBOUND(psock->s_flags))
-    {
-      FAR struct can_conn_s *conn;
-
-      conn            = (FAR struct can_conn_s *)psock->s_conn;
-#warning Missing logic
-    }
-
-  *addrlen = sizeof(struct sockaddr_can);
-  return OK;
+  return -EAFNOSUPPORT;
 }
 
 /****************************************************************************
@@ -451,8 +430,7 @@ static int can_getpeername(FAR struct socket *psock,
                            FAR struct sockaddr *addr,
                            FAR socklen_t *addrlen)
 {
-#warning Missing logic
-  return -EOPNOTSUPP;  /* Or maybe return -EAFNOSUPPORT; */
+  return -EOPNOTSUPP; 
 }
 
 /****************************************************************************
@@ -483,7 +461,6 @@ static int can_getpeername(FAR struct socket *psock,
 
 static int can_listen(FAR struct socket *psock, int backlog)
 {
-#warning Missing logic
   return -EOPNOTSUPP;
 }
 
@@ -510,7 +487,6 @@ static int can_connect(FAR struct socket *psock,
                        FAR const struct sockaddr *addr,
                        socklen_t addrlen)
 {
-#warning Missing logic
   return -EOPNOTSUPP;
 }
 
@@ -561,7 +537,6 @@ static int can_connect(FAR struct socket *psock,
 static int can_accept(FAR struct socket *psock, FAR struct sockaddr *addr,
                       FAR socklen_t *addrlen, FAR struct socket *newsock)
 {
-#warning Missing logic
   return -EOPNOTSUPP;
 }
 
@@ -798,7 +773,7 @@ static ssize_t can_sendto(FAR struct socket *psock, FAR const void *buf,
  ****************************************************************************/
 #ifdef CONFIG_NET_CMSG
 static ssize_t can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg,
-                    size_t len, int flags)
+                    int flags)
 {
   ssize_t ret;
 
@@ -808,7 +783,7 @@ static ssize_t can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg,
     {
       /* Raw packet send */
 
-      ret = psock_can_sendmsg(psock, msg, len);
+      ret = psock_can_sendmsg(psock, msg);
     }
   else
     {
