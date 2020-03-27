@@ -460,7 +460,7 @@ static uint16_t can_recvfrom_eventhandler(FAR struct net_driver_s *dev,
                   /* We still have to consume the data otherwise IOB gets full */
 
                   uint8_t dummy_buf[sizeof(struct timeval)];
-                  can_readahead_timestamp(conn, &dummy_buf);
+                  can_readahead_timestamp(conn, (uint8_t *)&dummy_buf);
                 }
             }
 #endif
@@ -686,7 +686,7 @@ errout_with_state:
 
 #ifdef CONFIG_NET_CMSG
 ssize_t can_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
-                    size_t len, int flags)
+                    int flags)
 {
   FAR struct can_conn_s *conn;
   FAR struct net_driver_s *dev;
@@ -763,7 +763,7 @@ ssize_t can_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
               /* We still have to consume the data otherwise IOB gets full */
 
               uint8_t dummy_buf[sizeof(struct timeval)];
-              can_readahead_timestamp(conn, &dummy_buf);
+              can_readahead_timestamp(conn, (uint8_t *)&dummy_buf);
             }
         }
 #endif

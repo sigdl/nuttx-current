@@ -327,7 +327,7 @@ struct s32k1xx_driver_s
   struct mb_s *rx;
   struct mb_s *tx;
 
-  struct flexcan_config_s *config;
+  const struct flexcan_config_s *config;
 
 #ifdef CONFIG_NET_CAN_RAW_TX_DEADLINE
   struct txmbstats txmb[TXMBCOUNT];
@@ -785,7 +785,7 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
 
       if (rf->cs.edl) /* CAN FD frame */
         {
-        struct canfd_frame *frame = priv->rxdesc;
+        struct canfd_frame *frame = (struct canfd_frame *)priv->rxdesc;
 
           if (rf->cs.ide)
             {
@@ -858,11 +858,11 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
            */
 
           priv->dev.d_len = sizeof(struct canfd_frame);
-          priv->dev.d_buf = frame;
+          priv->dev.d_buf = (uint8_t *)frame;
         }
       else /* CAN 2.0 Frame */
         {
-        struct can_frame *frame = priv->rxdesc;
+        struct can_frame *frame = (struct can_frame *)priv->rxdesc;
 
           if (rf->cs.ide)
             {
@@ -895,7 +895,7 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
            */
 
           priv->dev.d_len = sizeof(struct can_frame);
-          priv->dev.d_buf = frame;
+          priv->dev.d_buf = (uint8_t *)frame;
         }
 
       /* Send to socket interface */
@@ -911,7 +911,7 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
        * queue is not full.
        */
 
-      priv->dev.d_buf = priv->txdesc;
+      priv->dev.d_buf = (uint8_t *)priv->txdesc;
     }
 }
 
@@ -1009,6 +1009,8 @@ static int s32k1xx_flexcan_interrupt(int irq, FAR void *context,
     {
       s32k1xx_txdone(priv, flags);
     }
+    
+  return OK;
 }
 
 /****************************************************************************
@@ -1266,10 +1268,15 @@ static int s32k1xx_ifup(struct net_driver_s *dev)
 
   priv->bifup = true;
 
-  priv->txdesc = &g_tx_pool;
-  priv->rxdesc = &g_rx_pool;
+#ifdef CAN_FD
+  priv->txdesc = (struct canfd_frame *)&g_tx_pool;
+  priv->rxdesc = (struct canfd_frame *)&g_rx_pool;
+#else
+  priv->txdesc = (struct can_frame *)&g_tx_pool;
+  priv->rxdesc = (struct can_frame *)&g_rx_pool;
+#endif
 
-  priv->dev.d_buf = priv->txdesc;
+  priv->dev.d_buf = (uint8_t *)priv->txdesc;
 
   /* Set interrupts */
 
@@ -1693,7 +1700,7 @@ int s32k1xx_netinitialize(int intf)
 #endif
 
     default:
-      return NULL;
+      return -ENODEV;
     }
 
   s32k1xx_pinconfig(priv->config->tx_pin);

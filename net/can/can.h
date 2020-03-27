@@ -281,7 +281,7 @@ ssize_t can_recvfrom(FAR struct socket *psock, FAR void *buf, size_t len,
  ****************************************************************************/
 #ifdef CONFIG_NET_CMSG
 ssize_t can_recvmsg(FAR struct socket *psock, FAR struct msghdr *msg,
-                    size_t len, int flags);
+                    int flags);
 #endif
 
 /****************************************************************************
@@ -337,7 +337,6 @@ ssize_t psock_can_send(FAR struct socket *psock, FAR const void *buf,
  * Input Parameters:
  *   psock    An instance of the internal socket structure.
  *   msg      msg to send
- *   len      Length of msg to send
  *
  * Returned Value:
  *   On success, returns the number of characters sent.  On  error,
@@ -347,8 +346,7 @@ ssize_t psock_can_send(FAR struct socket *psock, FAR const void *buf,
  ****************************************************************************/
 
 #ifdef CONFIG_NET_CMSG
-ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg,
-                       size_t len);
+ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg);
 #endif
 
 /****************************************************************************
