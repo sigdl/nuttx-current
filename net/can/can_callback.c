@@ -82,6 +82,8 @@ can_data_event(FAR struct net_driver_s *dev, FAR struct can_conn_s *conn,
       ninfo("Dropped %d bytes\n", dev->d_len);
 
 #ifdef CONFIG_NET_STATISTICS
+      /* No support CAN net statistics yet */
+      
       /* g_netstats.tcp.drop++; */
 
 #endif
