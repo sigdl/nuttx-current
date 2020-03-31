@@ -39,6 +39,7 @@
 #include <nuttx/wqueue.h>
 #include <nuttx/signal.h>
 #include <nuttx/net/netdev.h>
+#include <nuttx/net/can.h>
 
 #include "up_arch.h"
 #include "chip.h"
@@ -65,32 +66,7 @@
  * is required.
  */
 
-/* FIXME A workqueue is required for enet but for FLEXCAN it increased the
- * transmit latency by ~ 40us from 24 to 67us
- * Therefore for now its configurable by the WORK_QUEUE define
- * If we know for sure that a workqueue isn't required
- * Then all WORK_QUEUE related code will be removed
- */
-
-#if !defined(CONFIG_SCHED_WORKQUEUE)
-
-/* #  error Work queue support is required */
-
-#else
-
-  /* Select work queue.  Always use the LP work queue if available.  If not,
-   * then LPWORK will re-direct to the HP work queue.
-   *
-   * NOTE:  However, the network should NEVER run on the high priority work
-   * queue!  That queue is intended only to service short back end interrupt
-   * processing that never suspends.  Suspending the high priority work queue
-   * may bring the system to its knees!
-   */
-
-/* #  define WORK_QUEUE */
-
-#  define CANWORK LPWORK
-#endif
+#define CANWORK LPWORK
 
 /* CONFIG_S32K1XX_FLEXCAN_NETHIFS determines the number of physical
  * interfaces that will be supported.
@@ -100,10 +76,6 @@
 #define MASKEXTID                   0x1fffffff
 #define FLAGEFF                     (1 << 31) /* Extended frame format */
 #define FLAGRTR                     (1 << 30) /* Remote transmission request */
-
-/* Fixme nice variables/constants */
-
-#define CAN_FD
 
 #define RXMBCOUNT                   5
 #define TXMBCOUNT                   2
@@ -138,12 +110,6 @@
 #define IFLAG1_RXFIFO               (CAN_FIFO_NE | CAN_FIFO_WARN | CAN_FIFO_OV)
 
 static int peak_tx_mailbox_index_ = 0;
-
-/* TX poll delay = 1 seconds. CLK_TCK is the number of clock ticks per
- * second.
- */
-
-#define S32K1XX_WDDELAY     (1*CLK_TCK)
 
 /****************************************************************************
  * Private Types
@@ -200,7 +166,7 @@ struct mb_s
 {
   union cs_e cs;
   union id_e id;
-#ifdef CAN_FD
+#ifdef CONFIG_NET_CAN_CANFD
   union data_e data[16];
 #else
   union data_e data[2];
@@ -279,8 +245,8 @@ static const struct flexcan_config_s s32k1xx_flexcan2_config =
   .tx_pin    = PIN_CAN2_TX,
   .rx_pin    = PIN_CAN2_RX,
 #ifdef PIN_CAN2_ENABLE
-  .enable_pin = PIN_CAN0_ENABLE,
-  .rx_pin     = CAN0_ENABLE_HIGH,
+  .enable_pin = PIN_CAN2_ENABLE,
+  .rx_pin     = CAN2_ENABLE_HIGH,
 #else
   .enable_pin = 0,
   .rx_pin     = 0,
@@ -300,19 +266,12 @@ struct s32k1xx_driver_s
 {
   uint32_t base;                /* FLEXCAN base address */
   bool bifup;                   /* true:ifup false:ifdown */
-  uint8_t txtail;               /* The oldest busy TX descriptor */
-  uint8_t txhead;               /* The next TX descriptor to use */
-  uint8_t rxtail;               /* The next RX descriptor to use */
-  uint8_t phyaddr;              /* Selected PHY address */
-#ifdef WORK_QUEUE
-  WDOG_ID txpoll;               /* TX poll timer */
-#endif
 #ifdef TX_TIMEOUT_WQ
   WDOG_ID txtimeout[TXMBCOUNT]; /* TX timeout timer */
 #endif
   struct work_s irqwork;        /* For deferring interrupt work to the wq */
   struct work_s pollwork;       /* For deferring poll work to the work wq */
-#ifdef CAN_FD
+#ifdef CONFIG_NET_CAN_CANFD
   struct canfd_frame *txdesc;   /* A pointer to the list of TX descriptor */
   struct canfd_frame *rxdesc;   /* A pointer to the list of RX descriptors */
 #else
@@ -350,7 +309,7 @@ static struct s32k1xx_driver_s g_flexcan1;
 static struct s32k1xx_driver_s g_flexcan2;
 #endif
 
-#ifdef CAN_FD
+#ifdef CONFIG_NET_CAN_CANFD
 static uint8_t g_tx_pool[(sizeof(struct canfd_frame)+MSG_DATA)*POOL_SIZE];
 static uint8_t g_rx_pool[(sizeof(struct canfd_frame)+MSG_DATA)*POOL_SIZE];
 #else
@@ -411,10 +370,6 @@ static int  s32k1xx_flexcan_interrupt(int irq, FAR void *context,
                                       FAR void *arg);
 
 /* Watchdog timer expirations */
-#ifdef WORK_QUEUE
-static void s32k1xx_poll_work(FAR void *arg);
-static void s32k1xx_polltimer_expiry(int argc, uint32_t arg, ...);
-#endif
 #ifdef TX_TIMEOUT_WQ
 static void s32k1xx_txtimeout_work(FAR void *arg);
 static void s32k1xx_txtimeout_expiry(int argc, uint32_t arg, ...);
@@ -496,8 +451,6 @@ static bool s32k1xx_txringfull(FAR struct s32k1xx_driver_s *priv)
 
 static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
 {
-  #warning Missing logic
-
   /* Attempt to write frame */
 
   uint32_t mbi = 0;
@@ -596,6 +549,7 @@ static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
       mb->data[0].w00 = __builtin_bswap32(*(uint32_t *)&frame->data[0]);
       mb->data[1].w00 = __builtin_bswap32(*(uint32_t *)&frame->data[4]);
     }
+#ifdef CONFIG_NET_CAN_CANFD
   else /* CAN FD frame */
     {
       struct canfd_frame *frame = (struct canfd_frame *)priv->dev.d_buf;
@@ -614,45 +568,7 @@ static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
 
       cs.rtr = frame->can_id & FLAGRTR ? 1 : 0;
 
-      if (frame->len < 9)
-        {
-          cs.dlc = frame->len;
-        }
-      else
-        {
-          if (frame->len < 13)
-            {
-              cs.dlc = 9;
-            }
-          else if (frame->len < 17)
-            {
-              cs.dlc = 10;
-            }
-          else if (frame->len < 21)
-            {
-              cs.dlc = 11;
-            }
-          else if (frame->len < 25)
-            {
-              cs.dlc = 12;
-            }
-          else if (frame->len < 33)
-            {
-              cs.dlc = 13;
-            }
-          else if (frame->len < 49)
-            {
-              cs.dlc = 14;
-            }
-          else if (frame->len < 65)
-            {
-              cs.dlc = 15;
-            }
-          else
-            {
-              cs.dlc = 15; /* FIXME check CAN FD spec */
-            }
-        }
+      cs.dlc = len_to_can_dlc[frame->len];
 
       uint32_t *frame_data_word = (uint32_t *)&frame->data[0];
 
@@ -661,6 +577,7 @@ static int s32k1xx_transmit(FAR struct s32k1xx_driver_s *priv)
           mb->data[i].w00 = __builtin_bswap32(frame_data_word[i]);
         }
     }
+#endif
 
   s32k1xx_gpiowrite(PIN_PORTD | PIN31, 0);
 
@@ -768,7 +685,6 @@ static int s32k1xx_txpoll(struct net_driver_s *dev)
 static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
                             uint32_t flags)
 {
-  #warning Missing logic
   uint32_t regval;
 
   s32k1xx_gpiowrite(PIN_PORTD | PIN31, 1);
@@ -783,6 +699,7 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
 
       /* Read the frame contents */
 
+#ifdef CONFIG_NET_CAN_CANFD
       if (rf->cs.edl) /* CAN FD frame */
         {
         struct canfd_frame *frame = (struct canfd_frame *)priv->rxdesc;
@@ -802,43 +719,7 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
               frame->can_id |= FLAGRTR;
             }
 
-          if (rf->cs.dlc < 9)
-            {
-              frame->len = rf->cs.dlc;
-            }
-          else
-            {
-              switch (rf->cs.dlc)
-                {
-                  case 9:
-                    frame->len = 12;
-                    break;
-
-                  case 10:
-                    frame->len = 16;
-                    break;
-
-                  case 11:
-                    frame->len = 20;
-                    break;
-
-                  case 12:
-                    frame->len = 24;
-                    break;
-
-                  case 13:
-                    frame->len = 32;
-                    break;
-
-                  case 14:
-                    frame->len = 48;
-                    break;
-
-                  case 15:
-                    frame->len = 64;
-                    break;
-                }
-            }
+          frame->len = can_dlc_to_len[rf->cs.dlc];
 
           uint32_t *frame_data_word = (uint32_t *)&frame->data[0];
 
@@ -861,6 +742,7 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
           priv->dev.d_buf = (uint8_t *)frame;
         }
       else /* CAN 2.0 Frame */
+#endif
         {
         struct can_frame *frame = (struct can_frame *)priv->rxdesc;
 
@@ -991,7 +873,6 @@ static void s32k1xx_txdone(FAR struct s32k1xx_driver_s *priv, uint32_t flags)
 static int s32k1xx_flexcan_interrupt(int irq, FAR void *context,
                                      FAR void *arg)
 {
-  #warning Missing logic
   FAR struct s32k1xx_driver_s *priv = (struct s32k1xx_driver_s *)arg;
   uint32_t flags;
   flags  = getreg32(priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
@@ -1009,83 +890,9 @@ static int s32k1xx_flexcan_interrupt(int irq, FAR void *context,
     {
       s32k1xx_txdone(priv, flags);
     }
-    
+
   return OK;
 }
-
-/****************************************************************************
- * Function: s32k1xx_poll_work
- *
- * Description:
- *   Perform periodic polling from the worker thread
- *
- * Input Parameters:
- *   arg - The argument passed when work_queue() as called.
- *
- * Returned Value:
- *   OK on success
- *
- * Assumptions:
- *   The network is locked.
- *
- ****************************************************************************/
-#ifdef WORK_QUEUE
-static void s32k1xx_poll_work(FAR void *arg)
-{
-  #warning Missing logic
-  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
-
-  /* Check if there is there is a transmission in progress.  We cannot
-   * perform the TX poll if he are unable to accept another packet for
-   * transmission.
-   */
-
-  net_lock();
-  if (!s32k1xx_txringfull(priv))
-    {
-      /* If so, update TCP timing states and poll the network for new XMIT
-       * data. Hmmm.. might be bug here.  Does this mean if there is a
-       * transmit in progress, we will missing TCP time state updates?
-       */
-
-      devif_timer(&priv->dev, S32K1XX_WDDELAY, s32k1xx_txpoll);
-    }
-
-  /* Setup the watchdog poll timer again in any case */
-
-  wd_start(priv->txpoll, S32K1XX_WDDELAY, s32k1xx_polltimer_expiry,
-           1, (wdparm_t)priv);
-  net_unlock();
-}
-
-/****************************************************************************
- * Function: s32k1xx_polltimer_expiry
- *
- * Description:
- *   Periodic timer handler.  Called from the timer interrupt handler.
- *
- * Input Parameters:
- *   argc - The number of available arguments
- *   arg  - The first argument
- *
- * Returned Value:
- *   None
- *
- * Assumptions:
- *   Global interrupts are disabled by the watchdog logic.
- *
- ****************************************************************************/
-
-static void s32k1xx_polltimer_expiry(int argc, uint32_t arg, ...)
-{
-  #warning Missing logic
-  FAR struct s32k1xx_driver_s *priv = (FAR struct s32k1xx_driver_s *)arg;
-
-  /* Schedule to perform the poll processing on the worker thread. */
-
-  work_queue(CANWORK, &priv->pollwork, s32k1xx_poll_work, priv, 0);
-}
-#endif
 
 /****************************************************************************
  * Function: s32k1xx_txtimeout_work
@@ -1250,25 +1057,15 @@ static int s32k1xx_ifup(struct net_driver_s *dev)
   FAR struct s32k1xx_driver_s *priv =
     (FAR struct s32k1xx_driver_s *)dev->d_private;
 
-  #warning Missing logic
-
   if (!s32k1xx_initialize(priv))
     {
       nerr("initialize failed");
       return -1;
     }
 
-#ifdef WORK_QUEUE
-
-  /* Set and activate a timer process */
-
-  wd_start(priv->txpoll, S32K1XX_WDDELAY, s32k1xx_polltimer_expiry, 1,
-           (wdparm_t)priv);
-#endif
-
   priv->bifup = true;
 
-#ifdef CAN_FD
+#ifdef CONFIG_NET_CAN_CANFD
   priv->txdesc = (struct canfd_frame *)&g_tx_pool;
   priv->rxdesc = (struct canfd_frame *)&g_rx_pool;
 #else
@@ -1390,11 +1187,7 @@ static int s32k1xx_txavail(struct net_driver_s *dev)
     {
       /* Schedule to serialize the poll on the worker thread. */
 
-#ifdef WORK_QUEUE
-      work_queue(CANWORK, &priv->pollwork, s32k1xx_txavail_work, priv, 0);
-#else
       s32k1xx_txavail_work(priv);
-#endif
     }
 
   return OK;
@@ -1498,7 +1291,7 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
             CAN_CBT_ERJW(1);      /* Resynchronization jump width */
   putreg32(regval, priv->base + S32K1XX_CAN_CBT_OFFSET);
 
-#ifdef CAN_FD
+#ifdef CONFIG_NET_CAN_CANFD
   /* Enable CAN FD feature */
 
   regval  = getreg32(priv->base + S32K1XX_CAN_MCR_OFFSET);
@@ -1759,11 +1552,6 @@ int s32k1xx_netinitialize(int intf)
 #endif
   priv->dev.d_private = (void *)priv;      /* Used to recover private state from dev */
 
-#ifdef WORK_QUEUE
-  /* Create a watchdog for timing polling for and timing of transmissions */
-
-  priv->txpoll        = wd_create();       /* Create periodic poll timer */
-#endif
 #ifdef TX_TIMEOUT_WQ
   for (int i = 0; i < TXMBCOUNT; i++)
     {
