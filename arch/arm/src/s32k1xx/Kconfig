@@ -154,6 +154,7 @@ config S32K1XX_LPSPI
 
 config S32K1XX_FLEXCAN
 	bool
+	select NET_CAN_HAVE_CANFD
 	default n
 	
 # Peripheral Selection
