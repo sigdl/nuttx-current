@@ -97,6 +97,22 @@
 #define MSG_DATA                    0
 #endif
 
+/* CAN bit timing values  */
+#define CLK_FREQ                    80000000
+#define PRESDIV_MAX                 256
+
+#define SEG_MAX                     8
+#define SEG_MIN                     1
+#define TSEG_MIN                    2
+#define TSEG1_MAX                   17
+#define TSEG2_MAX                   9
+
+#define SEG_FD_MAX                  32
+#define SEG_FD_MIN                  1
+#define TSEG_FD_MIN                 2
+#define TSEG1_FD_MAX                65
+#define TSEG2_FD_MAX                33
+
 #ifdef CONFIG_NET_CAN_RAW_TX_DEADLINE
 
 #  if !defined(CONFIG_SCHED_WORKQUEUE)
@@ -199,6 +215,14 @@ struct flexcan_config_s
   uint32_t mb_irq;           /* MB 0-15 IRQ */
 };
 
+struct flexcan_timeseg
+{
+  uint8_t propseg;
+  uint8_t pseg1;
+  uint8_t pseg2;
+  uint8_t presdiv;
+};
+
 /* FlexCAN device structures */
 
 #ifdef CONFIG_S32K1XX_FLEXCAN0
@@ -286,6 +310,13 @@ struct s32k1xx_driver_s
   struct mb_s *rx;
   struct mb_s *tx;
 
+  uint32_t arbi_bitrate;        /* Bitrate for arbitration phase */
+  uint32_t arbi_samplep;        /* Sample point for arbitration phase */
+#ifdef CONFIG_NET_CAN_CANFD
+  uint32_t data_bitrate;        /* Bitrate for data phase */
+  uint32_t data_samplep;        /* Sample point for data phase */
+#endif
+
   const struct flexcan_config_s *config;
 
 #ifdef CONFIG_NET_CAN_RAW_TX_DEADLINE
@@ -343,6 +374,141 @@ static inline uint32_t arm_clz(unsigned int value)
 
   __asm__ __volatile__ ("clz %0, %1" : "=r"(ret) : "r"(value));
   return ret;
+}
+
+/****************************************************************************
+ * Name: s32k1xx_bitratetotimeseg
+ *
+ * Description:
+ *   Convert bitrate to timeseg
+ *
+ * Input Parameters:
+ *   value - bitrate in bits
+ *
+ * Returned Value:
+ *   None
+ *
+ ****************************************************************************/
+
+struct flexcan_timeseg s32k1xx_bitratetotimeseg(uint32_t bitrate,
+                                                uint32_t samplepoint,
+                                                uint32_t can_fd)
+{
+  struct flexcan_timeseg timeseg =
+      {
+          0,
+          0,
+          0,
+          0,
+      };
+  int32_t tmppresdiv;
+  int32_t numtq;
+  int32_t tmpbitrate;
+  int32_t tmpsample;
+  int32_t tseg1;
+  int32_t tseg2;
+  int32_t tmppseg1;
+  int32_t tmppseg2;
+  int32_t tmppropseg;
+
+  const int32_t TSEG1MAX = (can_fd ? TSEG1_FD_MAX : TSEG1_MAX);
+  const int32_t TSEG2MAX = (can_fd ? TSEG2_FD_MAX : TSEG2_MAX);
+  const int32_t SEGMAX = (can_fd ? SEG_FD_MAX : SEG_MAX);
+
+  for (tmppresdiv = 0; tmppresdiv < PRESDIV_MAX; tmppresdiv++)
+    {
+      numtq = (CLK_FREQ / ((tmppresdiv + 1) * bitrate));
+
+      if (numtq == 0)
+        {
+          continue;
+        }
+
+      tmpbitrate = (CLK_FREQ / ((tmppresdiv + 1) * numtq));
+
+      /* The number of time quanta in 1 bit time must be lower than the one supported */
+
+      if ((numtq >= 8) && (numtq < 26))
+        {
+          /* Compute time segments based on the value of the sampling point */
+
+          tseg1 = (numtq * samplepoint / 100) - 1;
+          tseg2 = numtq - 1 - tseg1;
+
+          /* Adjust time segment 1 and time segment 2 */
+
+          while (tseg1 >= TSEG1MAX || tseg2 < TSEG_MIN)
+            {
+              tseg2++;
+              tseg1--;
+            }
+
+          tmppseg2 = tseg2 - 1;
+
+          /* Start from pseg1 = pseg2 and adjust until propseg is valid */
+
+          tmppseg1 = tmppseg2;
+          tmppropseg = tseg1 - tmppseg1 - 2;
+
+          while (tmppropseg <= 0)
+            {
+              tmppropseg++;
+              tmppseg1--;
+            }
+
+          while (tmppropseg >= SEGMAX)
+            {
+              tmppropseg--;
+              tmppseg1++;
+            }
+
+          if (((tseg1 >= TSEG1MAX) || (tseg2 >= TSEG2MAX) ||
+              (tseg2 < TSEG_MIN) || (tseg1 < TSEG_MIN)) ||
+              ((tmppropseg >= SEGMAX) || (tmppseg1 >= SEGMAX) ||
+                  (tmppseg2 < SEG_MIN) || (tmppseg2 >= SEGMAX)))
+            {
+              continue;
+            }
+
+          if (tmpbitrate > bitrate)
+            {
+              tmpbitrate = (tmpbitrate - bitrate);
+            }
+          else
+            {
+              tmpbitrate = (bitrate - tmpbitrate);
+            }
+
+          tmpsample = ((tseg1 + 1) * 100) / numtq;
+
+          if (tmpsample > samplepoint)
+            {
+              tmpsample = (tmpsample - samplepoint);
+            }
+          else
+            {
+              tmpsample = (samplepoint - tmpsample);
+            }
+
+          if ((tmpbitrate == 0) && (tmpsample <= 1))
+            {
+              if (can_fd == 1)
+                {
+                  timeseg.propseg = tmppropseg + 1;
+                }
+              else
+                {
+                  timeseg.propseg = tmppropseg;
+                }
+              timeseg.pseg1 = tmppseg1;
+              timeseg.pseg2 = tmppseg2;
+              timeseg.presdiv = tmppresdiv;
+              break;
+            }
+        }
+    }
+
+  return timeseg;
 }
 
 /* Common TX logic */
@@ -855,8 +1021,8 @@ static void s32k1xx_txdone(FAR struct s32k1xx_driver_s *priv, uint32_t flags)
  *
  * Description:
  *   Three interrupt sources will vector this this function:
- *   1. Ethernet MAC transmit interrupt handler
- *   2. Ethernet MAC receive interrupt handler
+ *   1. CAN MB transmit interrupt handler
+ *   2. CAN MB receive interrupt handler
  *   3.
  *
  * Input Parameters:
@@ -1248,6 +1414,7 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
 {
   uint32_t regval;
   uint32_t i;
+  struct flexcan_timeseg timing;
 
   /* initialize CAN device */
 
@@ -1278,16 +1445,25 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
       return -1;
     }
 
-  /* Based on 80 MHz BUS clock calc through S32DS */
+  timing = s32k1xx_bitratetotimeseg(priv->arbi_bitrate,
+                                    priv->arbi_samplep, 0);
+
+  if (timing.presdiv == 0 && timing.propseg == 0
+      && timing.pseg1 == 0 && timing.pseg2 == 0)
+    {
+      nerr("ERROR: Invalid CAN timings please try another sample point "
+           "or refer to the reference manual\n");
+      return -1;
+    }
 
   regval  = getreg32(priv->base + S32K1XX_CAN_CBT_OFFSET);
   regval |= CAN_CBT_BTF |         /* Enable extended bit timing
                                    * configurations for CAN-FD for setting up
                                    * separately nominal and data phase */
-            CAN_CBT_EPRESDIV(3) | /* Prescaler divisor factor of 3 */
-            CAN_CBT_EPROPSEG(7) | /* Propagation segment of 7 time quantas */
-            CAN_CBT_EPSEG1(6) |   /* Phase buffer segment 1 of 6 time quantas */
-            CAN_CBT_EPSEG2(3) |   /* Phase buffer segment 2 of 3 time quantas */
+            CAN_CBT_EPRESDIV(timing.presdiv) | /* Prescaler divisor factor */
+            CAN_CBT_EPROPSEG(timing.propseg) | /* Propagation segment */
+            CAN_CBT_EPSEG1(timing.pseg1) |   /* Phase buffer segment 1 */
+            CAN_CBT_EPSEG2(timing.pseg2) |   /* Phase buffer segment 2 */
             CAN_CBT_ERJW(1);      /* Resynchronization jump width */
   putreg32(regval, priv->base + S32K1XX_CAN_CBT_OFFSET);
 
@@ -1298,15 +1474,24 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
   regval |= CAN_MCR_FDEN;
   putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
 
-  /* Based on 80 MHz BUS clock calc through S32DS */
+  timing = s32k1xx_bitratetotimeseg(priv->data_bitrate,
+                                    priv->data_samplep, 1);
+
+  if (timing.presdiv == 0 && timing.propseg == 0
+      && timing.pseg1 == 0 && timing.pseg2 == 0)
+    {
+      nerr("ERROR: Invalid CAN data phase timings please try another "
+           "sample point or refer to the reference manual\n");
+      return -1;
+    }
 
   regval  = getreg32(priv->base + S32K1XX_CAN_FDCBT_OFFSET);
-  regval |= CAN_FDCBT_FPRESDIV(0) |  /* Prescaler divisor factor of 1 */
-            CAN_FDCBT_FPROPSEG(15) | /* Propagation segment of 7 time quantas
+  regval |= CAN_FDCBT_FPRESDIV(timing.presdiv) |  /* Prescaler divisor factor of 1 */
+            CAN_FDCBT_FPROPSEG(timing.propseg) | /* Propagation segment of
                                       * (only register that doesn't add 1) */
-            CAN_FDCBT_FPSEG1(1) |    /* Phase buffer segment 1 of 7 time quantas */
-            CAN_FDCBT_FPSEG2(1) |    /* Phase buffer segment 2 of 5 time quantas */
-            CAN_FDCBT_FRJW(1);       /* Resynchorinzation jump width same as PSEG2 */
+            CAN_FDCBT_FPSEG1(timing.pseg1) |    /* Phase buffer segment 1 */
+            CAN_FDCBT_FPSEG2(timing.pseg2) |    /* Phase buffer segment 2 */
+            CAN_FDCBT_FRJW(timing.pseg2);       /* Resynchorinzation jump width same as PSEG2 */
   putreg32(regval, priv->base + S32K1XX_CAN_FDCBT_OFFSET);
 
   /* Additional CAN-FD configurations */
@@ -1467,10 +1652,22 @@ int s32k1xx_netinitialize(int intf)
     {
 #ifdef CONFIG_S32K1XX_FLEXCAN0
     case 0:
-      priv         = &g_flexcan0;
+      priv               = &g_flexcan0;
       memset(priv, 0, sizeof(struct s32k1xx_driver_s));
-      priv->base   = S32K1XX_FLEXCAN0_BASE;
-      priv->config = &s32k1xx_flexcan0_config;
+      priv->base         = S32K1XX_FLEXCAN0_BASE;
+      priv->config       = &s32k1xx_flexcan0_config;
+
+      /* Default bitrate configuration */
+
+#  ifdef CONFIG_NET_CAN_CANFD
+      priv->arbi_bitrate = CONFIG_FLEXCAN0_ARBI_BITRATE;
+      priv->arbi_samplep = CONFIG_FLEXCAN0_ARBI_SAMPLEP;
+      priv->data_bitrate = CONFIG_FLEXCAN0_DATA_BITRATE;
+      priv->data_samplep = CONFIG_FLEXCAN0_DATA_SAMPLEP;
+#  else
+      priv->arbi_bitrate = CONFIG_FLEXCAN0_BITRATE;
+      priv->arbi_samplep = CONFIG_FLEXCAN0_SAMPLEP;
+#  endif
       break;
 #endif
 
@@ -1480,6 +1677,18 @@ int s32k1xx_netinitialize(int intf)
       memset(priv, 0, sizeof(struct s32k1xx_driver_s));
       priv->base   = S32K1XX_FLEXCAN1_BASE;
       priv->config = &s32k1xx_flexcan1_config;
+
+      /* Default bitrate configuration */
+
+#  ifdef CONFIG_NET_CAN_CANFD
+      priv->arbi_bitrate = CONFIG_FLEXCAN1_ARBI_BITRATE;
+      priv->arbi_samplep = CONFIG_FLEXCAN1_ARBI_SAMPLEP;
+      priv->data_bitrate = CONFIG_FLEXCAN1_DATA_BITRATE;
+      priv->data_samplep = CONFIG_FLEXCAN1_DATA_SAMPLEP;
+#  else
+      priv->arbi_bitrate = CONFIG_FLEXCAN1_BITRATE;
+      priv->arbi_samplep = CONFIG_FLEXCAN1_SAMPLEP;
+#  endif
       break;
 #endif
 
@@ -1489,6 +1698,18 @@ int s32k1xx_netinitialize(int intf)
       memset(priv, 0, sizeof(struct s32k1xx_driver_s));
       priv->base   = S32K1XX_FLEXCAN2_BASE;
       priv->config = &s32k1xx_flexcan2_config;
+
+      /* Default bitrate configuration */
+
+#  ifdef CONFIG_NET_CAN_CANFD
+      priv->arbi_bitrate = CONFIG_FLEXCAN2_ARBI_BITRATE;
+      priv->arbi_samplep = CONFIG_FLEXCAN2_ARBI_SAMPLEP;
+      priv->data_bitrate = CONFIG_FLEXCAN2_DATA_BITRATE;
+      priv->data_samplep = CONFIG_FLEXCAN2_DATA_SAMPLEP;
+#  else
+      priv->arbi_bitrate = CONFIG_FLEXCAN2_BITRATE;
+      priv->arbi_samplep = CONFIG_FLEXCAN2_SAMPLEP;
+#  endif
       break;
 #endif
 
