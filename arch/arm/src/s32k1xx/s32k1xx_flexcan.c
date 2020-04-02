@@ -106,12 +106,14 @@
 #define TSEG_MIN                    2
 #define TSEG1_MAX                   17
 #define TSEG2_MAX                   9
+#define NUMTQ_MAX                   26
 
 #define SEG_FD_MAX                  32
 #define SEG_FD_MIN                  1
 #define TSEG_FD_MIN                 2
-#define TSEG1_FD_MAX                65
-#define TSEG2_FD_MAX                33
+#define TSEG1_FD_MAX                39
+#define TSEG2_FD_MAX                9
+#define NUMTQ_FD_MAX                49
 
 #ifdef CONFIG_NET_CAN_RAW_TX_DEADLINE
 
@@ -383,15 +385,24 @@ static inline uint32_t arm_clz(unsigned int value)
  *   Convert bitrate to timeseg
  *
  * Input Parameters:
- *   value - bitrate in bits
+ *   bitrate - bitrate in bits per second
+ *   samplepoint - percentage of sample point
+ *   sp_tolerance - allowed difference in sample point from calculated
+ *                  bit timings (recommended value: 1)
+ *   can_fd - if set to calculate CAN FD bit timings, otherwise calculate
+ *            classical can timings
  *
  * Returned Value:
- *   None
+ *   flexcan_timeseg structure containing propseg, pseg1, pseg2, presdiv
+ *   timing values
+ *   when no valid timing could be found it
+ *   returns a struct filled with zeros
  *
  ****************************************************************************/
 
 struct flexcan_timeseg s32k1xx_bitratetotimeseg(uint32_t bitrate,
                                                 uint32_t samplepoint,
+                                                uint32_t sp_tolerance,
                                                 uint32_t can_fd)
 {
   struct flexcan_timeseg timeseg =
@@ -403,7 +414,6 @@ struct flexcan_timeseg s32k1xx_bitratetotimeseg(uint32_t bitrate,
       };
   int32_t tmppresdiv;
   int32_t numtq;
-  int32_t tmpbitrate;
   int32_t tmpsample;
   int32_t tseg1;
   int32_t tseg2;
@@ -414,6 +424,7 @@ struct flexcan_timeseg s32k1xx_bitratetotimeseg(uint32_t bitrate,
   const int32_t TSEG1MAX = (can_fd ? TSEG1_FD_MAX : TSEG1_MAX);
   const int32_t TSEG2MAX = (can_fd ? TSEG2_FD_MAX : TSEG2_MAX);
   const int32_t SEGMAX = (can_fd ? SEG_FD_MAX : SEG_MAX);
+  const int32_t NUMTQMAX = (can_fd ? NUMTQ_FD_MAX : NUMTQMAX);
 
   for (tmppresdiv = 0; tmppresdiv < PRESDIV_MAX; tmppresdiv++)
     {
@@ -424,11 +435,10 @@ struct flexcan_timeseg s32k1xx_bitratetotimeseg(uint32_t bitrate,
           continue;
         }
 
-      tmpbitrate = (CLK_FREQ / ((tmppresdiv + 1) * numtq));
-
       /* The number of time quanta in 1 bit time must be lower than the one supported */
 
-      if ((numtq >= 8) && (numtq < 26))
+      if ((CLK_FREQ / ((tmppresdiv + 1) * numtq) == bitrate)
+          && (numtq >= 8) && (numtq < NUMTQMAX))
         {
           /* Compute time segments based on the value of the sampling point */
 
@@ -470,27 +480,10 @@ struct flexcan_timeseg s32k1xx_bitratetotimeseg(uint32_t bitrate,
               continue;
             }
 
-          if (tmpbitrate > bitrate)
-            {
-              tmpbitrate = (tmpbitrate - bitrate);
-            }
-          else
-            {
-              tmpbitrate = (bitrate - tmpbitrate);
-            }
-
           tmpsample = ((tseg1 + 1) * 100) / numtq;
 
-          if (tmpsample > samplepoint)
-            {
-              tmpsample = (tmpsample - samplepoint);
-            }
-          else
-            {
-              tmpsample = (samplepoint - tmpsample);
-            }
-
-          if ((tmpbitrate == 0) && (tmpsample <= 1))
+          if (tmpsample - samplepoint <= sp_tolerance &&
+              samplepoint - tmpsample <= sp_tolerance)
             {
               if (can_fd == 1)
                 {
@@ -1446,7 +1439,7 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
     }
 
   timing = s32k1xx_bitratetotimeseg(priv->arbi_bitrate,
-                                    priv->arbi_samplep, 0);
+                                    priv->arbi_samplep, 1, 0);
 
   if (timing.presdiv == 0 && timing.propseg == 0
       && timing.pseg1 == 0 && timing.pseg2 == 0)
@@ -1475,7 +1468,7 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
   putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
 
   timing = s32k1xx_bitratetotimeseg(priv->data_bitrate,
-                                    priv->data_samplep, 1);
+                                    priv->data_samplep, 1, 1);
 
   if (timing.presdiv == 0 && timing.propseg == 0
       && timing.pseg1 == 0 && timing.pseg2 == 0)
