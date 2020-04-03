@@ -834,16 +834,13 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
                             uint32_t flags)
 {
   uint32_t regval;
+  uint32_t mb_index;
+  struct mb_s *rf;
 
-  s32k1xx_gpiowrite(PIN_PORTD | PIN31, 1);
-
-  /* FIXME naive what if multiple flags are high?? */
-
-  uint32_t mb_index = arm_clz(flags);
-
-  if (mb_index)
+  while ((mb_index = arm_clz(flags)) != 32)
     {
-      struct mb_s *rf = &priv->rx[31 - mb_index];
+
+      rf = &priv->rx[31 - mb_index];
 
       /* Read the frame contents */
 
@@ -942,6 +939,11 @@ static void s32k1xx_receive(FAR struct s32k1xx_driver_s *priv,
        */
 
       priv->dev.d_buf = (uint8_t *)priv->txdesc;
+
+      /* Reread interrupt flags and process them in this loop wh */
+
+      flags  = getreg32(priv->base + S32K1XX_CAN_IFLAG1_OFFSET);
+      flags &= IFLAG1_RX;
     }
 }
 
@@ -1255,7 +1257,12 @@ static int s32k1xx_ifup(struct net_driver_s *dev)
 
 static int s32k1xx_ifdown(struct net_driver_s *dev)
 {
-  #warning Missing logic
+  FAR struct s32k1xx_driver_s *priv =
+    (FAR struct s32k1xx_driver_s *)dev->d_private;
+
+  s32k1xx_reset(priv);
+
+  priv->bifup = false;
   return OK;
 }
 
@@ -1463,12 +1470,6 @@ static int s32k1xx_initialize(struct s32k1xx_driver_s *priv)
 
   /* initialize CAN device */
 
-  /* FIXME we only support a single can device for now */
-
-  /* TEST GPIO tming */
-
-  s32k1xx_pinconfig(PIN_PORTD | PIN31 | GPIO_OUTPUT);
-
   s32k1xx_setenable(priv->base, 0);
 
   /* Set SYS_CLOCK src */
@@ -1604,8 +1605,6 @@ static void s32k1xx_reset(struct s32k1xx_driver_s *priv)
       return;
     }
 
-  /* TODO calculate TASD */
-
   regval  = getreg32(priv->base + S32K1XX_CAN_MCR_OFFSET);
   regval &= ~(CAN_MCR_SUPV);
   putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
@@ -1629,7 +1628,7 @@ static void s32k1xx_reset(struct s32k1xx_driver_s *priv)
             CAN_MCR_MAXMB_MASK);
   putreg32(regval, priv->base + S32K1XX_CAN_MCR_OFFSET);
 
-  regval  = CAN_CTRL2_RRS | CAN_CTRL2_EACEN; /* FIXME TASD */
+  regval  = CAN_CTRL2_RRS | CAN_CTRL2_EACEN;
   putreg32(regval, priv->base + S32K1XX_CAN_CTRL2_OFFSET);
 
   for (i = 0; i < TOTALMBCOUNT; i++)
