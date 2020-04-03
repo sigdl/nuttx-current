@@ -374,8 +374,7 @@
 
 /* Control 1 Register */
 
-#define CAN_CTRL1_ROPSEG_SHIFT        (0)       /* Bits 0-2: Propagation Segment */
-#define CAN_CTRL1_ROPSEG_MASK         (7 << CAN_CTRL1_ROPSEG_SHIFT)
+#define CAN_CTRL1_PROPSEG(x)          (((uint32_t)(((uint32_t)(x)) << 0)) & 0x7)
 #define CAN_CTRL1_LOM                 (1 << 3)  /* Bit 3:  Listen-Only Mode */
 #define CAN_CTRL1_LBUF                (1 << 4)  /* Bit 4:  Lowest Buffer Transmitted First */
 #define CAN_CTRL1_TSYN                (1 << 5)  /* Bit 5:  Timer Sync */
@@ -388,14 +387,10 @@
 #define CAN_CTRL1_CLKSRC              (1 << 13) /* Bit 13: CAN Engine Clock Source */
 #define CAN_CTRL1_ERRMSK              (1 << 14) /* Bit 14: Error Mask */
 #define CAN_CTRL1_BOFFMSK             (1 << 15) /* Bit 15: Bus Off Mask */
-#define CAN_CTRL1_PSEG2_SHIFT         (16)      /* Bits 16-18: Phase Segment 2 */
-#define CAN_CTRL1_PSEG2_MASK          (7 << CAN_CTRL1_PSEG2_SHIFT)
-#define CAN_CTRL1_PSEG1_SHIFT         (19)      /* Bits 19-21: Phase Segment 1 */
-#define CAN_CTRL1_PSEG1_MASK          (7 << CAN_CTRL1_PSEG1_SHIFT)
-#define CAN_CTRL1_RJW_SHIFT           (22)      /* Bits 22-23: Resync Jump Width */
-#define CAN_CTRL1_RJW_MASK            (3 << CAN_CTRL1_RJW_SHIFT)
-#define CAN_CTRL1_PRESDIV_SHIFT       (24)      /* Bits 24-31: Prescaler Division Factor */
-#define CAN_CTRL1_PRESDIV_MASK        (0xff << CAN_CTRL1_PRESDIV_SHIFT)
+#define CAN_CTRL1_PSEG2(x)            (((uint32_t)(((uint32_t)(x)) << 16)) & 0x70000)
+#define CAN_CTRL1_PSEG1(x)            (((uint32_t)(((uint32_t)(x)) << 19)) & 0x380000)
+#define CAN_CTRL1_RJW(x)              (((uint32_t)(((uint32_t)(x)) << 22)) & 0xC00000)
+#define CAN_CTRL1_PRESDIV(x)          (((uint32_t)(((uint32_t)(x)) << 24)) & 0xFF000000)
 
 /* Free Running Timer */
 
