@@ -410,7 +410,7 @@ uint32_t kinetis_bitratetotimeseg(struct flexcan_timeseg *timeseg,
   const int32_t TSEG1MAX = (can_fd ? TSEG1_FD_MAX : TSEG1_MAX);
   const int32_t TSEG2MAX = (can_fd ? TSEG2_FD_MAX : TSEG2_MAX);
   const int32_t SEGMAX = (can_fd ? SEG_FD_MAX : SEG_MAX);
-  const int32_t NUMTQMAX = (can_fd ? NUMTQ_FD_MAX : NUMTQMAX);
+  const int32_t NUMTQMAX = (can_fd ? NUMTQ_FD_MAX : NUMTQ_MAX);
 
   for (tmppresdiv = 0; tmppresdiv < PRESDIV_MAX; tmppresdiv++)
     {
@@ -511,8 +511,7 @@ static uint32_t kinetis_waitmcr_change(uint32_t base,
 
 static void kinetis_receive(FAR struct kinetis_driver_s *priv,
                             uint32_t flags);
-static void kinetis_txdone(FAR struct kinetis_driver_s *priv,
-                           uint32_t flags);
+static void kinetis_txdone(FAR void *arg);
 
 static int  kinetis_flexcan_interrupt(int irq, FAR void *context,
                                       FAR void *arg);
@@ -960,12 +959,18 @@ static void kinetis_receive(FAR struct kinetis_driver_s *priv,
  *
  * Assumptions:
  *   Global interrupts are disabled by the watchdog logic.
- *   The network is locked.
+ *   We are not in an interrupt context so that we can lock the network.
  *
  ****************************************************************************/
 
-static void kinetis_txdone(FAR struct kinetis_driver_s *priv, uint32_t flags)
+static void kinetis_txdone(FAR void *arg)
 {
+  FAR struct kinetis_driver_s *priv = (FAR struct kinetis_driver_s *)arg;
+  uint32_t flags;
+
+  flags  = getreg32(priv->base + KINETIS_CAN_IFLAG1_OFFSET);
+  flags &= IFLAG1_TX;
+
   #warning Missing logic
 
   /* FIXME First Process Error aborts */
@@ -996,7 +1001,10 @@ static void kinetis_txdone(FAR struct kinetis_driver_s *priv, uint32_t flags)
    * new XMIT data
    */
 
+  net_lock();
   devif_poll(&priv->dev, kinetis_txpoll);
+  net_unlock();
+  up_enable_irq(priv->config->mb_irq);
 }
 
 /****************************************************************************
@@ -1031,6 +1039,8 @@ static int kinetis_flexcan_interrupt(int irq, FAR void *context,
 
     if (flags)
       {
+        /* Process immediately since scheduling a workqueue is too slow
+         * which causes us to drop CAN frames */
         kinetis_receive(priv, flags);
       }
 
@@ -1039,7 +1049,11 @@ static int kinetis_flexcan_interrupt(int irq, FAR void *context,
 
     if (flags)
       {
-        kinetis_txdone(priv, flags);
+        /* Disable further CAN interrupts. here can be no race
+         * condition here.
+         */
+        up_disable_irq(priv->config->mb_irq);
+        work_queue(CANWORK, &priv->irqwork, kinetis_txdone, priv, 0);
       }
 
   }
