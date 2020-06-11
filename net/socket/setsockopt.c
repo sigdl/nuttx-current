@@ -422,7 +422,7 @@ int psock_setsockopt(FAR struct socket *psock, int level, int option,
         break;
 #endif
 
-#ifdef CONFIG_NET_CAN
+#ifdef CONFIG_NET_CANPROTO_OPTIONS
       case SOL_CAN_RAW:   /* CAN protocol socket options (see include/netpacket/can.h) */
         ret = can_setsockopt(psock, option, value, value_len);
         break;

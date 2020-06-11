@@ -1873,7 +1873,7 @@ int kinetis_caninitialize(int intf)
 }
 
 /****************************************************************************
- * Name: up_netinitialize
+ * Name: arm_netinitialize
  *
  * Description:
  *   Initialize the first network interface.  If there are more than one
@@ -1884,7 +1884,7 @@ int kinetis_caninitialize(int intf)
  ****************************************************************************/
 
 #if !defined(CONFIG_NETDEV_LATEINIT)
-void up_netinitialize(void)
+void arm_netinitialize(void)
 {
 #ifdef CONFIG_KINETIS_FLEXCAN0
   kinetis_caninitialize(0);
