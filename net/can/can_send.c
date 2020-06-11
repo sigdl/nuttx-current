@@ -129,13 +129,14 @@ static uint16_t psock_send_eventhandler(FAR struct net_driver_s *dev,
 
           devif_can_send(dev, pstate->snd_buffer, pstate->snd_buflen);
           pstate->snd_sent = pstate->snd_buflen;
-
+#ifdef CONFIG_NET_CMSG
           if (pstate->pr_msglen > 0) /* concat cmsg data after packet */
             {
               memcpy(dev->d_buf + pstate->snd_buflen, pstate->pr_msgbuf,
                       pstate->pr_msglen);
               dev->d_sndlen = pstate->snd_buflen + pstate->pr_msglen;
             }
+#endif
         }
 
       /* Don't allow any further call backs. */
@@ -199,7 +200,7 @@ ssize_t psock_can_send(FAR struct socket *psock, FAR const void *buf,
     {
       return -ENODEV;
     }
-
+#if defined(CONFIG_NET_CANPROTO_OPTIONS) && defined(CONFIG_NET_CAN_CANFD)
   if (conn->fd_frames)
     {
       if (len != CANFD_MTU && len != CAN_MTU)
@@ -207,6 +208,7 @@ ssize_t psock_can_send(FAR struct socket *psock, FAR const void *buf,
           return -EINVAL;
         }
     }
+#endif
   else
     {
       if (len != CAN_MTU)
@@ -330,6 +332,7 @@ ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg)
       return -ENODEV;
     }
 
+#if defined(CONFIG_NET_CANPROTO_OPTIONS) && defined(CONFIG_NET_CAN_CANFD)
   if (conn->fd_frames)
     {
       if (msg->msg_iov->iov_len != CANFD_MTU
@@ -339,6 +342,7 @@ ssize_t psock_can_sendmsg(FAR struct socket *psock, FAR struct msghdr *msg)
         }
     }
   else
+#endif
     {
       if (msg->msg_iov->iov_len != CAN_MTU)
         {

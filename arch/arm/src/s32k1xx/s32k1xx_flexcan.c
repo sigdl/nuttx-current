@@ -1865,7 +1865,7 @@ int s32k1xx_netinitialize(int intf)
 }
 
 /****************************************************************************
- * Name: up_netinitialize
+ * Name: arm_netinitialize
  *
  * Description:
  *   Initialize the first network interface.  If there are more than one
@@ -1876,7 +1876,7 @@ int s32k1xx_netinitialize(int intf)
  ****************************************************************************/
 
 #if !defined(CONFIG_NETDEV_LATEINIT)
-void up_netinitialize(void)
+void arm_netinitialize(void)
 {
 #ifdef CONFIG_S32K1XX_FLEXCAN0
   s32k1xx_netinitialize(0);
