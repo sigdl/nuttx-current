@@ -130,7 +130,7 @@ uint16_t can_callback(FAR struct net_driver_s *dev,
           struct timeval *tv = (struct timeval *)
                                                 &dev->d_appdata[dev->d_len];
           dev->d_len += sizeof(struct timeval);
-          clock_systimespec(ts);
+          clock_systime_timespec(ts);
           tv->tv_usec = ts->tv_nsec / 1000;
         }
 #endif
