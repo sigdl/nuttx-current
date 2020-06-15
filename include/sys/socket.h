@@ -131,7 +131,7 @@
 
 /* Protocol levels supported by get/setsockopt(): */
 
-#define SOL_SOCKET       0 /* Only socket-level options supported */
+#define SOL_SOCKET      0 /* Only socket-level options supported */
 
 /* Socket-level options */
 
@@ -157,10 +157,10 @@
 #define SO_ERROR         4 /* Reports and clears error status (get only).
                             * arg: returns an integer value
                             */
-#define SO_KEEPALIVE     5 /* Keeps connections active by enabling the
-                            * periodic transmission of messages (get/set).
-                            * arg:  pointer to integer containing a boolean
-                            * int value
+#define SO_KEEPALIVE     5 /* Keeps connections active by enabling the periodic
+                            * transmission of messages (get/set).
+                            * arg:  pointer to integer containing a boolean int
+                            * value
                             */
 #define SO_LINGER        6 /* Lingers on a close() if data is present (get/set)
                             * arg: struct linger
@@ -194,9 +194,8 @@
                             * arg: integer value
                             */
 #define SO_SNDTIMEO     14 /* Sets the timeout value specifying the amount of
-                            * time that an output function blocks because
-                            * flow control prevents data from being sent
-                            * (get/set).
+                            * time that an output function blocks because flow
+                            * control prevents data from being sent(get/set).
                             * arg: struct timeval
                             */
 #define SO_TYPE         15 /* Reports the socket type (get only).
@@ -205,14 +204,6 @@
 #define SO_TIMESTAMP    16 /* Generates a timestamp for each incoming packet
                             * arg: integer value
                             */
-
-/* The options are unsupported but included for compatibility
- * and portability
- */
-
-#define SO_SNDBUFFORCE  32
-#define SO_RCVBUFFORCE  33
-#define SO_RXQ_OVFL     40
 
 /* Protocol-level socket operations. */
 
