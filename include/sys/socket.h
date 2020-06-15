@@ -205,6 +205,13 @@
                             * arg: integer value
                             */
 
+/* The options are unsupported but included for compatibility
+ * and portability
+ */
+#define SO_SNDBUFFORCE  32
+#define SO_RCVBUFFORCE  33
+#define SO_RXQ_OVFL     40
+
 /* Protocol-level socket operations. */
 
 #define SOL_IP          1 /* See options in include/netinet/ip.h */
