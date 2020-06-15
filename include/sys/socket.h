@@ -202,12 +202,14 @@
 #define SO_TYPE         15 /* Reports the socket type (get only).
                             * return: int
                             */
+#define SO_TIMESTAMP    16 /* Generates a timestamp for each incoming packet
+                            * arg: integer value
+                            */
 
 /* The options are unsupported but included for compatibility
  * and portability
  */
 
-#define SO_TIMESTAMP    29
 #define SO_SNDBUFFORCE  32
 #define SO_RCVBUFFORCE  33
 #define SO_RXQ_OVFL     40
