@@ -92,6 +92,14 @@ ifeq ($(CONFIG_STACK_COLORATION),y)
 CMN_CSRCS += arm_checkstack.c
 endif
 
+# Proposed site to initialize STM32 networking
+
+ifeq ($(CONFIG_NET),y)
+ifneq ($(CONFIG_KINETIS_ENET),y)
+CMN_CSRCS += arm_netinitialize.c
+endif
+endif
+
 ifeq ($(CONFIG_ARCH_FPU),y)
 CMN_ASRCS += arm_fpu.S
 CMN_CSRCS += arm_copyarmstate.c
