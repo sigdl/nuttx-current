@@ -24,8 +24,9 @@ if NET_ICMP && !NET_ICMP_NO_STACK
 
 config NET_ICMP_SOCKET
 	bool "IPPROTO_ICMP socket support"
-	default n
+	default y
 	select MM_IOB
+	select NET_READAHEAD
 	---help---
 		Enable support for IPPROTO_ICMP sockets.  These sockets are needed
 		for application level support for sending ECHO (ping) requests and
