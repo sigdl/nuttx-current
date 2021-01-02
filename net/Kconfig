@@ -276,11 +276,15 @@ config NET_IPv4
 	---help---
 		Build in support for IPv4.
 
+		You need at least one IP protocol (UDP, TCP, ICMP) or compilation will fail
+
 config NET_IPv6
 	bool "IPv6"
 	default n
 	---help---
 		Build in support for IPv6.
+
+		You need at least one IP protocol (UDP, TCP, ICMP) or compilation will fail
 
 source "net/neighbor/Kconfig"
 
