@@ -352,6 +352,30 @@ static FAR char *g_idleargv[1][2];
  ****************************************************************************/
 
 /****************************************************************************
+ * Name: board_early_initialize
+ *
+ * Description:
+ *   This function is called to do *board-dependant* initialization and
+ *   specially initialization of general interfaces according to the unified
+ *   peripheral driver system (UPDS)
+ *
+ *   This weak function is just a stub to avoid crash compilation of boards
+ *   that haven't implemented the new system
+ *
+ * Input Parameters:
+ *   None
+ *
+ * Returned Value:
+ *   Does not return.
+ *
+ ****************************************************************************/
+#ifdef CONFIG_BOARD_EARLY_INITIALIZE
+void weak_function board_early_initialize(void)
+{
+}
+#endif
+
+/****************************************************************************
  * Name: nx_start
  *
  * Description:
@@ -700,14 +724,15 @@ void nx_start(void)
 
   up_initialize();
 
-#ifdef CONFIG_BOARD_EARLY_INITIALIZE
-  /* Call the board-specific up_initialize() extension to support
+  /* Call the board-specific up_initialize() extension to allow
    * early initialization of board-specific drivers and resources
    * that cannot wait until board_late_initialize.
+   * 
+   * It is also the entry point for Unified Peripheral Driver System
+   * (UPDS), the new framework to SPI peripherals
    */
 
   board_early_initialize();
-#endif
 
   /* Hardware resources are now available */
 

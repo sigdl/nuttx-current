@@ -4,7 +4,7 @@ README
 This README discusses issues unique to NuttX configurations for the
 STMicro STM32F4Discovery development board featuring the STM32F407VGT6
 MCU. The STM32F407VGT6 is a 168MHz Cortex-M4 operation with 1Mbit Flash
-memory and 128kbytes. The board features:
+memory and 128kbytes of RAM. The board features:
 
   - On-board ST-LINK/V2 for programming and debugging,
   - LIS302DL, ST MEMS motion sensor, 3-axis digital output accelerometer,
@@ -29,8 +29,10 @@ ways:
 Contents
 ========
 
+  - Connectors and Signal Pinouts
   - LEDs
   - RGB LED Driver
+  - SPI
   - PWM
   - UARTs
   - Timer Inputs/Outputs
@@ -48,6 +50,14 @@ Contents
   - BASIC
   - Testing LLVM LIBC++ with NuttX
   - Configurations
+
+
+Connectors and Signal Pinouts
+=============================
+
+Detailed information about connectors, peropherals and signals can be found in
+the User Manual (UM1472)
+
 
 LEDs
 ====
@@ -111,12 +121,41 @@ components can be enabled with the following configuration settings:
   +CONFIG_STM32_TIM3_CHANNEL=3
   +CONFIG_STM32_TIM3_CHMODE=0
 
+
+SPI
+===
+
+The STM32F407VG has three SPI interfaces. Those can be found in the 
+STM32F4Discovery or STM32F407VG-DISC1 according to the next table
+
++---------+--------+--------+-------------+
+|Interface| Signal |Main pin|Alternate pin|
++---------+--------+--------+-------------+       
+| SPI1    |  MOSI  |  PA7   |    PB5      |
+|         |  MISO  |  PA6   |    PB4      |
+|         |  SCK   |  PA5   |    PB3      |
+|         |  NSS   |  PA4   |    PA15     |
++---------+--------+--------+-------------+
+| SPI2    |  MOSI  |  PC3   |    PB15     |
+|         |  MISO  |  PC2   |    PB14     |
+|         |  SCK   |  PB10  |    PB13     |
+|         |  NSS   |  PB9   |    PB12     |
++---------+--------+--------+-------------+
+| SPI3    |  MOSI  |  PC12  |    PB5      |
+|         |  MISO  |  PC11  |    PB4      |
+|         |  SCK   |  PC10  |    PB3      |
+|         |  NSS   |  PA4   |    PA15     |
++---------+--------+--------+-------------+
+
+
+
 PWM
 ===
 
 The STM32F4Discovery has no real on-board PWM devices, but the board can be
 configured to output a pulse train using TIM4 CH2 on PD3.  This pin is
 available next to the audio jack.
+
 
 UARTs
 =====

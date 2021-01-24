@@ -25,6 +25,26 @@ menuconfig SPI
 
 if SPI
 
+menuconfig UPDS_SPI
+	bool "Unified Peripheral Driver System SPI Support"
+	default n
+	---help---
+		This enables Unified Peripheral Driver System for SPI
+
+		This system aims at a common and complete SPI framework with advanced
+		characteristics like architecture independence, multiple configurable chip
+		selects and irq lines, testing mode and more 
+
+if UPDS_SPI
+
+config UPDS_SPI_CHARDRIVER
+	bool "UPDS character driver for SPI"
+	default y
+	---help---
+	This enables character driver exposed at /dev/spi[N] for testing purposes
+
+endif	# UPDS_SPI
+
 config SPI_SLAVE
 	bool "SPI slave"
 	default n

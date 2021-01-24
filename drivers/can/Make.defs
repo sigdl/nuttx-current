@@ -48,4 +48,5 @@ endif
 DEPPATH += --dep-path can
 VPATH += :can
 CFLAGS += ${shell $(INCDIR) "$(CC)" $(TOPDIR)$(DELIM)drivers$(DELIM)can}
-endif
+
+endif # CONFIG_CAN

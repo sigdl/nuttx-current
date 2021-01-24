@@ -51,6 +51,21 @@
 #include "stm32.h"
 #include "stm32f4discovery.h"
 
+/************************************************************************************
+ * Pre-processor Definitions
+ ************************************************************************************/
+
+
+/************************************************************************************
+ * Private Types
+ ************************************************************************************/
+
+
+/************************************************************************************
+ * Private Function Prototypes
+ ************************************************************************************/
+uint8_t upds_spi_initialize(void);
+
 /****************************************************************************
  * Public Functions
  ****************************************************************************/
@@ -118,8 +133,44 @@ void stm32_boardinitialize(void)
   /* Configure on-board LEDs if LED support has been selected. */
 
   board_autoled_initialize();
+
+#else
+
+  board_userled_initialize();
 #endif
 }
+
+/****************************************************************************
+ * Name: board_early_initialize
+ *
+ * Description:
+ *   If CONFIG_BOARD_LATE_INITIALIZE is selected, then an additional
+ *   initialization call will be performed in the boot-up sequence to a
+ *   function called board_late_initialize().  board_late_initialize() will be
+ *   called immediately after up_initialize() is called and just before the
+ *   initial application is started.  This additional initialization phase
+ *   may be used, for example, to initialize board-specific device drivers.
+ *
+ ****************************************************************************/
+
+void board_early_initialize(void)
+{
+  uint8_t ret;
+
+#ifdef CONFIG_UPDS_SPI
+
+  /* Perform board-specific SPI bus initialization */
+  ret = upds_spi_initialize();
+
+#endif
+
+#ifdef CONFIG_BOARD_EARLY_INITIALIZE
+
+  /* Put your board specific early initialization here */
+
+#endif
+}
+
 
 /****************************************************************************
  * Name: board_late_initialize

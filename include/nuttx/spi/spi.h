@@ -47,6 +47,8 @@
 #include <stdbool.h>
 #include <assert.h>
 #include <errno.h>
+#include <nuttx/fs/fs.h>
+#include <nuttx/semaphore.h>
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -491,6 +493,16 @@
 #define SPIDEV_ADC(n)           SPIDEV_ID(SPIDEVTYPE_ADC,           (n))
 #define SPIDEV_USER(n)          SPIDEV_ID(SPIDEVTYPE_USER,          (n))
 
+/* Character driver device nodes */
+#define DEVNODE_LEN             12
+#define SPI1_DEVNODE            "/dev/spi1"
+#define SPI2_DEVNODE            "/dev/spi2"
+#define SPI3_DEVNODE            "/dev/spi3"
+#define SPI4_DEVNODE            "/dev/spi4"
+#define SPI5_DEVNODE            "/dev/spi5"
+#define SPI6_DEVNODE            "/dev/spi6"
+
+
 /****************************************************************************
  * Public Types
  ****************************************************************************/
@@ -550,6 +562,134 @@ typedef uint8_t spi_hwfeatures_t;
 #endif
 
 /* The SPI vtable */
+
+#ifdef CONFIG_UPDS_SPI
+/* Struct definitions for Unified Peripheral Driver System (UPDS) */
+
+struct upds_spibus_s;
+struct upds_ext_s;
+
+/* UPDS SPI bus operations struct */
+struct upds_spiops_s
+{
+  CODE int      (*lock)(FAR struct upds_spibus_s *bus, bool lock);
+  CODE void     (*select)(FAR struct upds_spibus_s *bus, uint32_t devid,
+                  bool selected);
+  CODE uint32_t (*setfrequency)(FAR struct upds_spibus_s *bus,
+                  uint32_t frequency);
+#ifdef CONFIG_SPI_CS_DELAY_CONTROL
+  CODE int      (*setdelay)(FAR struct upds_spibus_s *bus, uint32_t a,
+                  uint32_t b, uint32_t c);
+#endif
+  CODE void     (*setmode)(FAR struct upds_spibus_s *bus, enum spi_mode_e mode);
+  CODE void     (*setbits)(FAR struct upds_spibus_s *bus, int nbits);
+#ifdef CONFIG_SPI_HWFEATURES
+  CODE int      (*hwfeatures)(FAR struct upds_spibus_s *bus,
+                  spi_hwfeatures_t features);
+#endif
+  CODE uint8_t  (*status)(FAR struct upds_spibus_s *bus, uint32_t devid);
+#ifdef CONFIG_SPI_CMDDATA
+  CODE int      (*cmddata)(FAR struct upds_spibus_s *bus, uint32_t devid,
+                  bool cmd);
+#endif
+  CODE uint32_t (*send)(FAR struct upds_spibus_s *bus, uint32_t wd);
+#ifdef CONFIG_SPI_EXCHANGE
+  CODE void     (*exchange)(FAR struct upds_spibus_s *bus,
+                  FAR const void *txbuffer, FAR void *rxbuffer,
+                  size_t nwords);
+#else
+  CODE void     (*sndblock)(FAR struct upds_spibus_s *bus,
+                  FAR const void *buffer, size_t nwords);
+  CODE void     (*recvblock)(FAR struct upds_spibus_s *bus, FAR void *buffer,
+                  size_t nwords);
+#endif
+#ifdef CONFIG_SPI_TRIGGER
+  CODE int      (*trigger)(FAR struct upds_spibus_s *bus);
+#endif
+  CODE int      (*registercallback)(FAR struct upds_spibus_s *bus,
+                  spi_mediachange_t callback, void *arg);
+
+};
+
+/* UPDS SPI bus parameters struct */
+struct upds_spibus_s
+{
+  /* Basic flags */
+  uint8_t       state;                      /* Bus state: uninitialized, ready, etc   */
+  sem_t         guard;                      /* Protection semaphore                   */
+  sem_t         wait;                       /* Wait to transfer completion            */
+
+  /* SPI parameters */
+  uint8_t       busnum;                     /* Bus number                             */
+  uint32_t      baseaddr;                   /* SPI register base address              */
+  uint32_t      clock;                      /* Clocking for the SPI module            */
+  uint32_t      frequency;                  /* Requested clock frequency              */
+  uint32_t      actual;                     /* Actual clock frequency                 */
+  uint8_t       mode;                       /* Mode 0,1,2,3                           */
+  uint8_t       bits;                       /* Width of word in bits (4 to 16)        */
+
+  /* interrupt parameters */
+  uint8_t       irq;                        /* SPI IRQ number                         */
+
+#if 0
+  /* DMA parameters */
+  bool          enabledma;                  /* Use DMA or not                         */
+  dma_config_t  rxconfig;                   /* RX DMA configuration                   */
+  dma_config_t  txconfig;                   /* TX DMA configuration                   */
+  DMA_HANDLE    rxdma;                      /* SPI RX DMA handle                      */
+  DMA_HANDLE    txdma;                      /* SPI TX DMA handle                      */
+  sem_t         dmasem;                     /* Wait for DMA to complete               */
+#endif
+
+  /* Buffer parameters */
+  bool          enablebuffer;               /* Use buffer or not                      */
+  void          *txbuffer;                  /* Trasmit buffer                         */
+  void          *rxbuffer;                  /* Receive buffer                         */
+
+#ifdef CONFIG_UPDS_SPI_CHARDRIVER
+  /* Character driver parameters */
+  uint8_t       cdstate;                    /* Char driver state: disabled, enabled   */
+  char          devname[DEVNODE_LEN];       /* Name of device                         */
+  sem_t         filesem;                    /* File ops semaphore                     */
+  int16_t       crefs;                      /* Number of open references              */
+  bool          unlinked;                   /* True, driver has been unlinked         */
+  struct file_operations *fops;
+#endif
+
+  /* Extension parameters */
+  struct upds_spiops_s  *ops;               /* SPI operations                         */
+#ifdef CONFIG_UPDS_SPI_EXT
+  struct upds_ext_s     ext;                /* Special functions Extension            */
+#endif
+};
+
+/* UPDS SPI bus extention struct */
+struct upds_ext_s
+{
+
+};
+
+/* UPDS SPI bus chip select struct */
+struct upds_spics_s
+{
+  /* Basic flags */
+  uint8_t       state;                      /* Bus state: uninitialized, ready, etc   */
+  
+  /* SPI parameters */
+  uint8_t       busnum;                     /* Bus number                             */
+};
+
+/* UPDS SPI bus chip select struct */
+struct upds_spiirq_s
+{
+  /* Basic flags */
+  uint8_t       state;                      /* Bus state: uninitialized, ready, etc   */
+  
+  /* SPI parameters */
+  uint8_t       busnum;                     /* Bus number                             */
+};
+
+#endif  /* CONFIG_UPDS_SPI */
 
 struct spi_dev_s;
 struct spi_ops_s
@@ -615,4 +755,12 @@ extern "C"
 #if defined(__cplusplus)
 }
 #endif
+
+/****************************************************************************
+ * Public Functions
+ ****************************************************************************/
+#ifdef CONFIG_UPDS_SPI_CHARDRIVER
+uint8_t upds_spibus_char_drv(FAR struct upds_spibus_s *bus);
+#endif
+
 #endif /* __INCLUDE_NUTTX_SPI_SPI_H */
