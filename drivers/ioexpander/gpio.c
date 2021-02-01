@@ -48,7 +48,7 @@
 #include <unistd.h>
 
 #include <nuttx/fs/fs.h>
-#include <nuttx/ioexpander/gpio.h>
+#include <nuttx/gpio/gpio.h>
 
 #ifdef CONFIG_DEV_GPIO
 

@@ -45,7 +45,7 @@
 
 #include <nuttx/kmalloc.h>
 #include <nuttx/ioexpander/ioexpander.h>
-#include <nuttx/ioexpander/gpio.h>
+#include <nuttx/gpio/gpio.h>
 
 #ifdef CONFIG_GPIO_LOWER_HALF
 

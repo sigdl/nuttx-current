@@ -42,7 +42,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/ioexpander/gpio.h>
+#include <nuttx/gpio/gpio.h>
 #include <nuttx/ioexpander/ioexpander.h>
 
 #include "up_internal.h"

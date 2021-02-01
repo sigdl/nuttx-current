@@ -44,7 +44,7 @@
 #include <errno.h>
 #include <debug.h>
 
-#include <nuttx/spi/spi.h>
+#include <nuttx/spi/spi_upds.h>
 #include <arch/board/board.h>
 
 #include "arm_arch.h"

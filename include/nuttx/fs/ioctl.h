@@ -480,7 +480,7 @@
 
 /* GPIO driver command definitions ******************************************/
 
-/* see nuttx/include/ioexpander/gpio.h */
+/* see nuttx/include/gpio/gpio.h */
 
 #define _GPIOCVALID(c)    (_IOC_TYPE(c)==_GPIOBASE)
 #define _GPIOC(nr)        _IOC(_GPIOBASE,nr)

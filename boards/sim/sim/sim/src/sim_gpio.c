@@ -45,7 +45,7 @@
 
 #include <nuttx/clock.h>
 #include <nuttx/wdog.h>
-#include <nuttx/ioexpander/gpio.h>
+#include <nuttx/gpio/gpio.h>
 
 #include "sim.h"
 
