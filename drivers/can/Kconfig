@@ -226,52 +226,55 @@ config MCP2515_UPDS_1_SPI_CLK
 choice
 	prompt "Device 1 Chip Select GPIO"
 	default MCP2515_UPDS_1_CS_1
+	---help---
+		You need to enable the GPIO that will be used as CS in
+		Device Drivers->GPIO Section
 
 config MCP2515_UPDS_1_CS_1
 	bool "GPIO 1"
-	depends on HAVE_GPIO_1_OUT
+	depends on GPIO_1 && HAVE_GPIO_1_OUT
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_1_CS_2
 	bool "GPIO 2"
-	depends on HAVE_GPIO_2_OUT
+	depends on GPIO_2 && HAVE_GPIO_2_OUT
 	---help---
 		GPIO 2 available for use in drivers	
 
 config MCP2515_UPDS_1_CS_3
 	bool "GPIO 3"
-	depends on HAVE_GPIO_3_OUT
+	depends on GPIO_3 && HAVE_GPIO_3_OUT
 	---help---
 		GPIO 3 available for use in drivers	
 
 config MCP2515_UPDS_1_CS_4
 	bool "GPIO 4"
-	depends on HAVE_GPIO_4_OUT
+	depends on GPIO_4 && HAVE_GPIO_4_OUT
 	---help---
 		GPIO 4 available for use in drivers	
 
 config MCP2515_UPDS_1_CS_5
 	bool "GPIO 5"
-	depends on HAVE_GPIO_5_OUT
+	depends on GPIO_5 && HAVE_GPIO_5_OUT
 	---help---
 		GPIO 5 available for use in drivers	
 
 config MCP2515_UPDS_1_CS_6
 	bool "GPIO 6"
-	depends on HAVE_GPIO_6_OUT
+	depends on GPIO_6 && HAVE_GPIO_6_OUT
 	---help---
 		GPIO 6 available for use in drivers	
 
 config MCP2515_UPDS_1_CS_7
 	bool "GPIO 7"
-	depends on HAVE_GPIO_7_OUT
+	depends on GPIO_7 && HAVE_GPIO_7_OUT
 	---help---
 		GPIO 7 available for use in drivers	
 
 config MCP2515_UPDS_1_CS_8
 	bool "GPIO 8"
-	depends on HAVE_GPIO_8_OUT
+	depends on GPIO_8 && HAVE_GPIO_8_OUT
 	---help---
 		GPIO 8 available for use in drivers	
 
@@ -291,30 +294,57 @@ config MCP2515_UPDS_1_CS
 choice
 	prompt "Device 1 RESET GPIO"
 	default MCP2515_UPDS_1_RST_1
+	---help---
+		You need to enable the GPIO that will be used as RST in
+		Device Drivers->GPIO Section
 
 config MCP2515_UPDS_1_RST_1
 	bool "GPIO 1"
-	depends on HAVE_GPIO_1_OUT
+	depends on GPIO_1 && HAVE_GPIO_1_OUT
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_1_RST_2
 	bool "GPIO 2"
-	depends on HAVE_GPIO_2_OUT
+	depends on GPIO_2 && HAVE_GPIO_2_OUT
 	---help---
 		GPIO 2 available for use in drivers	
 
 config MCP2515_UPDS_1_RST_3
 	bool "GPIO 3"
-	depends on HAVE_GPIO_3_OUT
+	depends on GPIO_3 && HAVE_GPIO_3_OUT
 	---help---
 		GPIO 3 available for use in drivers	
 
 config MCP2515_UPDS_1_RST_4
 	bool "GPIO 4"
-	depends on HAVE_GPIO_4_OUT
+	depends on GPIO_4 && HAVE_GPIO_4_OUT
 	---help---
 		GPIO 4 available for use in drivers	
+
+config MCP2515_UPDS_1_RST_5
+	bool "GPIO 5"
+	depends on GPIO_5 && HAVE_GPIO_5_OUT
+	---help---
+		GPIO 5 available for use in drivers	
+
+config MCP2515_UPDS_1_RST_6
+	bool "GPIO 6"
+	depends on GPIO_6 && HAVE_GPIO_6_OUT
+	---help---
+		GPIO 6 available for use in drivers	
+
+config MCP2515_UPDS_1_RST_7
+	bool "GPIO 7"
+	depends on GPIO_7 && HAVE_GPIO_7_OUT
+	---help---
+		GPIO 7 available for use in drivers	
+
+config MCP2515_UPDS_1_RST_8
+	bool "GPIO 8"
+	depends on GPIO_8 && HAVE_GPIO_8_OUT
+	---help---
+		GPIO 8 available for use in drivers	
 
 endchoice
 
@@ -332,28 +362,31 @@ config MCP2515_UPDS_1_RST
 choice
 	prompt "Device 1 IRQ GPIO"
 	default MCP2515_UPDS_1_IRQ_5
+	---help---
+		You need to enable the GPIO that will be used as IRQ in
+		Device Drivers->GPIO Section
 
 config MCP2515_UPDS_1_IRQ_5
 	bool "GPIO 5"
-	depends on HAVE_GPIO_5_IRQ
+	depends on GPIO_5 && HAVE_GPIO_5_IRQ
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_1_IRQ_6
 	bool "GPIO 6"
-	depends on HAVE_GPIO_6_IRQ
+	depends on GPIO_6 && HAVE_GPIO_6_IRQ
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_1_IRQ_7
 	bool "GPIO 7"
-	depends on HAVE_GPIO_7_IRQ
+	depends on GPIO_7 && HAVE_GPIO_7_IRQ
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_1_IRQ_8
 	bool "GPIO 8"
-	depends on HAVE_GPIO_8_IRQ
+	depends on GPIO_8 && HAVE_GPIO_8_IRQ
 	---help---
 		GPIO 8 available for use in drivers	
 
@@ -397,52 +430,55 @@ config MCP2515_UPDS_2_SPI_CLK
 choice
 	prompt "Device 2 Chip Select GPIO"
 	default MCP2515_UPDS_2_CS_1
+	---help---
+		You need to enable the GPIO that will be used as CS in
+		Device Drivers->GPIO Section
 
 config MCP2515_UPDS_2_CS_1
 	bool "GPIO 1"
-	depends on HAVE_GPIO_1_OUT
+	depends on GPIO_1 && HAVE_GPIO_1_OUT
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_2_CS_2
 	bool "GPIO 2"
-	depends on HAVE_GPIO_2_OUT
+	depends on GPIO_2 && HAVE_GPIO_2_OUT
 	---help---
 		GPIO 2 available for use in drivers	
 
 config MCP2515_UPDS_2_CS_3
 	bool "GPIO 3"
-	depends on HAVE_GPIO_3_OUT
+	depends on GPIO_3 && HAVE_GPIO_3_OUT
 	---help---
 		GPIO 3 available for use in drivers	
 
 config MCP2515_UPDS_2_CS_4
 	bool "GPIO 4"
-	depends on HAVE_GPIO_4_OUT
+	depends on GPIO_4 && HAVE_GPIO_4_OUT
 	---help---
 		GPIO 4 available for use in drivers	
 
 config MCP2515_UPDS_2_CS_5
 	bool "GPIO 5"
-	depends on HAVE_GPIO_5_OUT
+	depends on GPIO_5 && HAVE_GPIO_5_OUT
 	---help---
 		GPIO 5 available for use in drivers	
 
 config MCP2515_UPDS_2_CS_6
 	bool "GPIO 6"
-	depends on HAVE_GPIO_6_OUT
+	depends on GPIO_6 && HAVE_GPIO_6_OUT
 	---help---
 		GPIO 6 available for use in drivers	
 
 config MCP2515_UPDS_2_CS_7
 	bool "GPIO 7"
-	depends on HAVE_GPIO_7_OUT
+	depends on GPIO_7 && HAVE_GPIO_7_OUT
 	---help---
 		GPIO 7 available for use in drivers	
 
 config MCP2515_UPDS_2_CS_8
 	bool "GPIO 8"
-	depends on HAVE_GPIO_8_OUT
+	depends on GPIO_8 && HAVE_GPIO_8_OUT
 	---help---
 		GPIO 8 available for use in drivers	
 
@@ -462,28 +498,31 @@ config MCP2515_UPDS_2_CS
 choice
 	prompt "Device 2 RESET GPIO"
 	default MCP2515_UPDS_2_RST_1
+	---help---
+		You need to enable the GPIO that will be used as RST in
+		Device Drivers->GPIO Section
 
 config MCP2515_UPDS_2_RST_1
 	bool "GPIO 1"
-	depends on HAVE_GPIO_1_OUT
+	depends on GPIO_1 && HAVE_GPIO_1_OUT
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_2_RST_2
 	bool "GPIO 2"
-	depends on HAVE_GPIO_2_OUT
+	depends on GPIO_2 && HAVE_GPIO_2_OUT
 	---help---
 		GPIO 2 available for use in drivers	
 
 config MCP2515_UPDS_2_RST_3
 	bool "GPIO 3"
-	depends on HAVE_GPIO_3_OUT
+	depends on GPIO_3 && HAVE_GPIO_3_OUT
 	---help---
 		GPIO 3 available for use in drivers	
 
 config MCP2515_UPDS_2_RST_4
 	bool "GPIO 4"
-	depends on HAVE_GPIO_4_OUT
+	depends on GPIO_4 && HAVE_GPIO_4_OUT
 	---help---
 		GPIO 4 available for use in drivers	
 
@@ -503,28 +542,31 @@ config MCP2515_UPDS_2_RST
 choice
 	prompt "Device 2 IRQ GPIO"
 	default MCP2515_UPDS_2_IRQ_5
+	---help---
+		You need to enable the GPIO that will be used as IRQ in
+		Device Drivers->GPIO Section
 
 config MCP2515_UPDS_2_IRQ_5
 	bool "GPIO 5"
-	depends on HAVE_GPIO_5_IRQ
+	depends on GPIO_5 && HAVE_GPIO_5_IRQ
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_2_IRQ_6
 	bool "GPIO 6"
-	depends on HAVE_GPIO_6_IRQ
+	depends on GPIO_6 && HAVE_GPIO_6_IRQ
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_2_IRQ_7
 	bool "GPIO 7"
-	depends on HAVE_GPIO_7_IRQ
+	depends on GPIO_7 && HAVE_GPIO_7_IRQ
 	---help---
 		GPIO 1 available for use in drivers	
 
 config MCP2515_UPDS_2_IRQ_8
 	bool "GPIO 8"
-	depends on HAVE_GPIO_8_IRQ
+	depends on GPIO_8 && HAVE_GPIO_8_IRQ
 	---help---
 		GPIO 8 available for use in drivers	
 

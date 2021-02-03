@@ -12,5 +12,118 @@ menuconfig GPIO
 
 if GPIO
 
+config GPIO_1
+	bool "Enable GPIO 1"
+	default n
+	depends on HAVE_GPIO_1
+	---help---
+	Enables GPIO 1 pin and control structures
+
+config GPIO_2
+	bool "Enable GPIO 2"
+	default n
+	depends on HAVE_GPIO_2
+	---help---
+	Enables GPIO 2 pin and control structures
+
+config GPIO_3
+	bool "Enable GPIO 3"
+	default n
+	depends on HAVE_GPIO_3
+	---help---
+	Enables GPIO 3 pin and control structures
+
+config GPIO_4
+	bool "Enable GPIO 4"
+	default n
+	depends on HAVE_GPIO_4
+	---help---
+	Enables GPIO 4 pin and control structures
+
+config GPIO_5
+	bool "Enable GPIO 5"
+	default n
+	depends on HAVE_GPIO_5
+	---help---
+	Enables GPIO 5 pin and control structures
+
+config GPIO_6
+	bool "Enable GPIO 6"
+	default n
+	depends on HAVE_GPIO_6
+	---help---
+	Enables GPIO 6 pin and control structures
+
+config GPIO_7
+	bool "Enable GPIO 7"
+	default n
+	depends on HAVE_GPIO_7
+	---help---
+	Enables GPIO 7 pin and control structures
+
+config GPIO_8
+	bool "Enable GPIO 8"
+	default n
+	depends on HAVE_GPIO_8
+	---help---
+	Enables GPIO 8 pin and control structures
+
+config GPIO_9
+	bool "Enable GPIO 9"
+	default n
+	depends on HAVE_GPIO_9
+	---help---
+	Enables GPIO 9 pin and control structures
+
+config GPIO_10
+	bool "Enable GPIO 10"
+	default n
+	depends on HAVE_GPIO_10
+	---help---
+	Enables GPIO 10 pin and control structures
+
+config GPIO_11
+	bool "Enable GPIO 11"
+	default n
+	depends on HAVE_GPIO_11
+	---help---
+	Enables GPIO 11 pin and control structures
+
+config GPIO_12
+	bool "Enable GPIO 12"
+	default n
+	depends on HAVE_GPIO_12
+	---help---
+	Enables GPIO 12 pin and control structures
+
+config GPIO_13
+	bool "Enable GPIO 13"
+	default n
+	depends on HAVE_GPIO_13
+	---help---
+	Enables GPIO 13 pin and control structures
+
+config GPIO_14
+	bool "Enable GPIO 14"
+	default n
+	depends on HAVE_GPIO_14
+	---help---
+	Enables GPIO 14 pin and control structures
+
+config GPIO_15
+	bool "Enable GPIO 15"
+	default n
+	depends on HAVE_GPIO_15
+	---help---
+	Enables GPIO 15 pin and control structures
+
+config GPIO_16
+	bool "Enable GPIO 16"
+	default n
+	depends on HAVE_GPIO_16
+	---help---
+	Enables GPIO 16 pin and control structures
+
+
 
 endif # GPIO

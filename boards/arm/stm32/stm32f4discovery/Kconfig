@@ -116,3 +116,118 @@ config PM_SLEEP_WAKEUP_NSEC
 		PM_STANDBY mode.
 
 endif
+
+# ********** GPIOs **********
+
+config HAVE_GPIO_1
+	bool
+	default y
+
+config HAVE_GPIO_1_IN
+	bool
+	default y
+
+config HAVE_GPIO_1_OUT
+	bool
+	default y
+
+config HAVE_GPIO_2
+	bool
+	default y
+
+config HAVE_GPIO_2_IN
+	bool
+	default y
+
+config HAVE_GPIO_2_OUT
+	bool
+	default y
+
+config HAVE_GPIO_3
+	bool
+	default y
+
+config HAVE_GPIO_3_IN
+	bool
+	default y
+
+config HAVE_GPIO_3_OUT
+	bool
+	default y
+
+config HAVE_GPIO_4
+	bool
+	default y
+
+config HAVE_GPIO_4_IN
+	bool
+	default y
+
+config HAVE_GPIO_4_OUT
+	bool
+	default y
+
+config HAVE_GPIO_5
+	bool
+	default y
+
+config HAVE_GPIO_5_IN
+	bool
+	default y
+
+config HAVE_GPIO_5_OUT
+	bool
+	default y
+
+config HAVE_GPIO_5_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_6
+	bool
+	default y
+
+config HAVE_GPIO_6_IN
+	bool
+	default y
+
+config HAVE_GPIO_6_OUT
+	bool
+	default y
+
+config HAVE_GPIO_6_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_7
+	bool
+	default y
+
+config HAVE_GPIO_7_IN
+	bool
+	default y
+
+config HAVE_GPIO_7_OUT
+	bool
+	default y
+
+config HAVE_GPIO_7_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_8
+	bool
+	default y
+
+config HAVE_GPIO_8_IN
+	bool
+	default y
+
+config HAVE_GPIO_8_OUT
+	bool
+	default y
+
+config HAVE_GPIO_8_IRQ
+	bool
+	default y
+
