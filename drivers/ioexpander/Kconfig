@@ -3,10 +3,10 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menu "IO Expander/GPIO Support"
+#menu "IO Expander/GPIO Support"
 
-config IOEXPANDER
-	bool "Enable IO Expander Support"
+menuconfig IOEXPANDER
+	bool "IO Expander Support"
 	default n
 	---help---
 		This directory holds implementations of IO expander drivers.
@@ -223,8 +223,6 @@ config IOEXPANDER_MULTIPIN
 		This settings enable the definition of routines for
 		optimized simultaneous access to multiple pins.
 
-endif # IOEXPANDER
-
 config DEV_GPIO
 	bool "GPIO driver"
 	default n
@@ -259,4 +257,4 @@ config GPIO_LOWER_HALF_INTTYPE
 
 endif
 
-endmenu # IO Expander/GPIO Support
+endif # IOEXPANDER

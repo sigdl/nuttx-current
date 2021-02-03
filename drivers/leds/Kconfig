@@ -3,7 +3,11 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menu "LED Support"
+menuconfig LEDSUPPORT
+	bool "LED Support"
+	default n
+
+if LEDSUPPORT
 
 config USERLED
 	bool "LED driver"
@@ -104,4 +108,4 @@ config WS2812_FREQUENCY
 	default 8000000
 	depends on WS2812
 
-endmenu # LED Support
+endif # LEDSUPPORT

@@ -3,7 +3,11 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menu "LCD Driver Support"
+menuconfig LCDDRIVER
+	bool "LCD Driver Support"
+	default n
+
+if LCDDRIVER
 
 menuconfig LCD
 	bool "Graphic LCD Driver Support"
@@ -1416,4 +1420,4 @@ config LCD_TDA19988
 		Phone and Ultra-Mobile Personal Computer (UM PC), new PC tablet and
 		MID where size and power are key for battery autonomy.
 
-endmenu # LCD Driver Support
+endif # LCDDRIVER

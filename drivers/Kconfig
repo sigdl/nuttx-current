@@ -15,6 +15,9 @@ config DEV_ZERO
 	bool "Enable /dev/zero"
 	default n
 
+source drivers/crypto/Kconfig
+source drivers/loop/Kconfig
+
 config DRVR_MKRD
 	bool "RAM disk wrapper (mkrd)"
 	default n
@@ -24,7 +27,20 @@ config DRVR_MKRD
 		the selecting this option will also enable the BOARDIOC_MKRD
 		command that will support creation of RAM disks from applications.
 
-menu "Buffering"
+source drivers/1wire/Kconfig
+source drivers/analog/Kconfig
+source drivers/audio/Kconfig
+source drivers/bch/Kconfig
+
+config SPECIFIC_DRIVERS
+	bool "Board Specific drivers"
+	default n
+
+menuconfig BUFFERING
+	bool "Buffering"
+	default n
+
+if BUFFERING
 
 config DRVR_WRITEBUFFER
 	bool "Enable write buffer support"
@@ -70,23 +86,15 @@ config DRVR_INVALIDATE
 
 endif # DRVR_WRITEBUFFER || DRVR_READAHEAD
 
-endmenu # Buffering
+endif # BUFFERING
 
-config SPECIFIC_DRIVERS
-	bool "Board Specific drivers"
-	default n
-
-source drivers/crypto/Kconfig
-source drivers/loop/Kconfig
 source drivers/can/Kconfig
+source drivers/contactless/Kconfig
+source drivers/eeprom/Kconfig
+source drivers/pipes/Kconfig
+source drivers/gpio/Kconfig
 source drivers/i2c/Kconfig
-source drivers/spi/Kconfig
 source drivers/i2s/Kconfig
-source drivers/timers/Kconfig
-source drivers/analog/Kconfig
-source drivers/audio/Kconfig
-source drivers/video/Kconfig
-source drivers/bch/Kconfig
 source drivers/input/Kconfig
 source drivers/ioexpander/Kconfig
 source drivers/lcd/Kconfig
@@ -94,22 +102,21 @@ source drivers/leds/Kconfig
 source drivers/mmcsd/Kconfig
 source drivers/modem/Kconfig
 source drivers/mtd/Kconfig
-source drivers/eeprom/Kconfig
 source drivers/net/Kconfig
 source drivers/note/Kconfig
-source drivers/pipes/Kconfig
+source drivers/platform/Kconfig
 source drivers/power/Kconfig
+source drivers/rf/Kconfig
+source drivers/rc/Kconfig
 source drivers/rptun/Kconfig
 source drivers/sensors/Kconfig
 source drivers/serial/Kconfig
+source drivers/spi/Kconfig
+source drivers/syslog/Kconfig
+source drivers/timers/Kconfig
 source drivers/usbdev/Kconfig
 source drivers/usbhost/Kconfig
 source drivers/usbmisc/Kconfig
 source drivers/usbmonitor/Kconfig
+source drivers/video/Kconfig
 source drivers/wireless/Kconfig
-source drivers/contactless/Kconfig
-source drivers/1wire/Kconfig
-source drivers/syslog/Kconfig
-source drivers/platform/Kconfig
-source drivers/rf/Kconfig
-source drivers/rc/Kconfig

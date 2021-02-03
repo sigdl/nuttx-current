@@ -3,7 +3,11 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menu "System Logging"
+menuconfig SYSLOGSUPPORT
+	bool "System Logging"
+	default n
+
+if SYSLOGSUPPORT
 
 # Selected if the architecture has its own, built-in SYSLOGging enabled
 
@@ -239,4 +243,4 @@ config SYSLOG_CHARDEV
 		byte output with no time-stamping or any other SYSLOG features
 		supported.
 
-endmenu # System logging
+endif # SYSLOGSUPPORT

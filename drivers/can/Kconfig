@@ -193,4 +193,356 @@ config MCP2515_SPI_SCK_FREQUENCY
 
 endif # CAN_MCP2515
 
-endif
+menuconfig MCP2515_UPDS
+	bool "Microchip MCP2515 UPDS CAN Driver Support"
+	default n
+	---help---
+		This is the MCP2515 driver for the Unified Peripheral Driver System
+		It works with SocketCAN
+		
+if MCP2515_UPDS
+
+config MCP2515_UPDS_1
+	bool "MCP2515 Device 1"
+	default n
+	---help---
+		MCP2515 Device 1 configuration. You can have several devices
+
+if MCP2515_UPDS_1
+
+config MCP2515_UPDS_1_CLK
+	int "Device 1 Chip Clock Frequency"
+	default 8000000
+	---help---
+		You can configure the clock frequency of chip. Usually it means
+		the crystal frequency
+		
+config MCP2515_UPDS_1_SPI_CLK
+	int "Device 1 SPI Bus Clock Frequency"
+	default 1000000
+	---help---
+		You can configure the SPI Bus frequency
+		
+choice
+	prompt "Device 1 Chip Select GPIO"
+	default MCP2515_UPDS_1_CS_1
+
+config MCP2515_UPDS_1_CS_1
+	bool "GPIO 1"
+	depends on HAVE_GPIO_1_OUT
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_1_CS_2
+	bool "GPIO 2"
+	depends on HAVE_GPIO_2_OUT
+	---help---
+		GPIO 2 available for use in drivers	
+
+config MCP2515_UPDS_1_CS_3
+	bool "GPIO 3"
+	depends on HAVE_GPIO_3_OUT
+	---help---
+		GPIO 3 available for use in drivers	
+
+config MCP2515_UPDS_1_CS_4
+	bool "GPIO 4"
+	depends on HAVE_GPIO_4_OUT
+	---help---
+		GPIO 4 available for use in drivers	
+
+config MCP2515_UPDS_1_CS_5
+	bool "GPIO 5"
+	depends on HAVE_GPIO_5_OUT
+	---help---
+		GPIO 5 available for use in drivers	
+
+config MCP2515_UPDS_1_CS_6
+	bool "GPIO 6"
+	depends on HAVE_GPIO_6_OUT
+	---help---
+		GPIO 6 available for use in drivers	
+
+config MCP2515_UPDS_1_CS_7
+	bool "GPIO 7"
+	depends on HAVE_GPIO_7_OUT
+	---help---
+		GPIO 7 available for use in drivers	
+
+config MCP2515_UPDS_1_CS_8
+	bool "GPIO 8"
+	depends on HAVE_GPIO_8_OUT
+	---help---
+		GPIO 8 available for use in drivers	
+
+endchoice
+
+config MCP2515_UPDS_1_CS
+	int
+	default 1	if MCP2515_UPDS_1_CS_1
+	default 2	if MCP2515_UPDS_1_CS_2
+	default 3	if MCP2515_UPDS_1_CS_3
+	default 4	if MCP2515_UPDS_1_CS_4
+	default 5	if MCP2515_UPDS_1_CS_5
+	default 6	if MCP2515_UPDS_1_CS_6
+	default 7	if MCP2515_UPDS_1_CS_7
+	default 8	if MCP2515_UPDS_1_CS_8
+
+choice
+	prompt "Device 1 RESET GPIO"
+	default MCP2515_UPDS_1_RST_1
+
+config MCP2515_UPDS_1_RST_1
+	bool "GPIO 1"
+	depends on HAVE_GPIO_1_OUT
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_1_RST_2
+	bool "GPIO 2"
+	depends on HAVE_GPIO_2_OUT
+	---help---
+		GPIO 2 available for use in drivers	
+
+config MCP2515_UPDS_1_RST_3
+	bool "GPIO 3"
+	depends on HAVE_GPIO_3_OUT
+	---help---
+		GPIO 3 available for use in drivers	
+
+config MCP2515_UPDS_1_RST_4
+	bool "GPIO 4"
+	depends on HAVE_GPIO_4_OUT
+	---help---
+		GPIO 4 available for use in drivers	
+
+endchoice
+
+config MCP2515_UPDS_1_RST
+	int
+	default 1	if MCP2515_UPDS_1_RST_1
+	default 2	if MCP2515_UPDS_1_RST_2
+	default 3	if MCP2515_UPDS_1_RST_3
+	default 4	if MCP2515_UPDS_1_RST_4
+	default 5	if MCP2515_UPDS_1_RST_5
+	default 6	if MCP2515_UPDS_1_RST_6
+	default 7	if MCP2515_UPDS_1_RST_7
+	default 8	if MCP2515_UPDS_1_RST_8
+
+choice
+	prompt "Device 1 IRQ GPIO"
+	default MCP2515_UPDS_1_IRQ_5
+
+config MCP2515_UPDS_1_IRQ_5
+	bool "GPIO 5"
+	depends on HAVE_GPIO_5_IRQ
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_1_IRQ_6
+	bool "GPIO 6"
+	depends on HAVE_GPIO_6_IRQ
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_1_IRQ_7
+	bool "GPIO 7"
+	depends on HAVE_GPIO_7_IRQ
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_1_IRQ_8
+	bool "GPIO 8"
+	depends on HAVE_GPIO_8_IRQ
+	---help---
+		GPIO 8 available for use in drivers	
+
+endchoice
+
+config MCP2515_UPDS_1_IRQ
+	int
+	default 1	if MCP2515_UPDS_1_IRQ_1
+	default 2	if MCP2515_UPDS_1_IRQ_2
+	default 3	if MCP2515_UPDS_1_IRQ_3
+	default 4	if MCP2515_UPDS_1_IRQ_4
+	default 5	if MCP2515_UPDS_1_IRQ_5
+	default 6	if MCP2515_UPDS_1_IRQ_6
+	default 7	if MCP2515_UPDS_1_IRQ_7
+	default 8	if MCP2515_UPDS_1_IRQ_8
+
+endif # MCP2515_UPDS_1
+
+config MCP2515_UPDS_2
+	bool "MCP2515 Device 2"
+	default n
+	depends on MCP2515_UPDS_1
+	---help---
+		MCP2515 Device 2 configuration. You can have several devices
+
+if MCP2515_UPDS_2
+
+config MCP2515_UPDS_2_CLK
+	int "Device 2 Chip Clock Frequency"
+	default 8000000
+	---help---
+		You can configure the clock frequency of chip. Usually it means
+		the crystal frequency
+		
+config MCP2515_UPDS_2_SPI_CLK
+	int "Device 2 SPI Bus Clock Frequency"
+	default 1000000
+	---help---
+		You can configure the SPI Bus frequency
+		
+choice
+	prompt "Device 2 Chip Select GPIO"
+	default MCP2515_UPDS_2_CS_1
+
+config MCP2515_UPDS_2_CS_1
+	bool "GPIO 1"
+	depends on HAVE_GPIO_1_OUT
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_2_CS_2
+	bool "GPIO 2"
+	depends on HAVE_GPIO_2_OUT
+	---help---
+		GPIO 2 available for use in drivers	
+
+config MCP2515_UPDS_2_CS_3
+	bool "GPIO 3"
+	depends on HAVE_GPIO_3_OUT
+	---help---
+		GPIO 3 available for use in drivers	
+
+config MCP2515_UPDS_2_CS_4
+	bool "GPIO 4"
+	depends on HAVE_GPIO_4_OUT
+	---help---
+		GPIO 4 available for use in drivers	
+
+config MCP2515_UPDS_2_CS_5
+	bool "GPIO 5"
+	depends on HAVE_GPIO_5_OUT
+	---help---
+		GPIO 5 available for use in drivers	
+
+config MCP2515_UPDS_2_CS_6
+	bool "GPIO 6"
+	depends on HAVE_GPIO_6_OUT
+	---help---
+		GPIO 6 available for use in drivers	
+
+config MCP2515_UPDS_2_CS_7
+	bool "GPIO 7"
+	depends on HAVE_GPIO_7_OUT
+	---help---
+		GPIO 7 available for use in drivers	
+
+config MCP2515_UPDS_2_CS_8
+	bool "GPIO 8"
+	depends on HAVE_GPIO_8_OUT
+	---help---
+		GPIO 8 available for use in drivers	
+
+endchoice
+
+config MCP2515_UPDS_2_CS
+	int
+	default 1	if MCP2515_UPDS_2_CS_1
+	default 2	if MCP2515_UPDS_2_CS_2
+	default 3	if MCP2515_UPDS_2_CS_3
+	default 4	if MCP2515_UPDS_2_CS_4
+	default 5	if MCP2515_UPDS_2_CS_5
+	default 6	if MCP2515_UPDS_2_CS_6
+	default 7	if MCP2515_UPDS_2_CS_7
+	default 8	if MCP2515_UPDS_2_CS_8
+
+choice
+	prompt "Device 2 RESET GPIO"
+	default MCP2515_UPDS_2_RST_1
+
+config MCP2515_UPDS_2_RST_1
+	bool "GPIO 1"
+	depends on HAVE_GPIO_1_OUT
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_2_RST_2
+	bool "GPIO 2"
+	depends on HAVE_GPIO_2_OUT
+	---help---
+		GPIO 2 available for use in drivers	
+
+config MCP2515_UPDS_2_RST_3
+	bool "GPIO 3"
+	depends on HAVE_GPIO_3_OUT
+	---help---
+		GPIO 3 available for use in drivers	
+
+config MCP2515_UPDS_2_RST_4
+	bool "GPIO 4"
+	depends on HAVE_GPIO_4_OUT
+	---help---
+		GPIO 4 available for use in drivers	
+
+endchoice
+
+config MCP2515_UPDS_2_RST
+	int
+	default 1	if MCP2515_UPDS_2_RST_1
+	default 2	if MCP2515_UPDS_2_RST_2
+	default 3	if MCP2515_UPDS_2_RST_3
+	default 4	if MCP2515_UPDS_2_RST_4
+	default 5	if MCP2515_UPDS_2_RST_5
+	default 6	if MCP2515_UPDS_2_RST_6
+	default 7	if MCP2515_UPDS_2_RST_7
+	default 8	if MCP2515_UPDS_2_RST_8
+
+choice
+	prompt "Device 2 IRQ GPIO"
+	default MCP2515_UPDS_2_IRQ_5
+
+config MCP2515_UPDS_2_IRQ_5
+	bool "GPIO 5"
+	depends on HAVE_GPIO_5_IRQ
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_2_IRQ_6
+	bool "GPIO 6"
+	depends on HAVE_GPIO_6_IRQ
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_2_IRQ_7
+	bool "GPIO 7"
+	depends on HAVE_GPIO_7_IRQ
+	---help---
+		GPIO 1 available for use in drivers	
+
+config MCP2515_UPDS_2_IRQ_8
+	bool "GPIO 8"
+	depends on HAVE_GPIO_8_IRQ
+	---help---
+		GPIO 8 available for use in drivers	
+
+endchoice
+
+config MCP2515_UPDS_2_IRQ
+	int
+	default 1	if MCP2515_UPDS_2_IRQ_1
+	default 2	if MCP2515_UPDS_2_IRQ_2
+	default 3	if MCP2515_UPDS_2_IRQ_3
+	default 4	if MCP2515_UPDS_2_IRQ_4
+	default 5	if MCP2515_UPDS_2_IRQ_5
+	default 6	if MCP2515_UPDS_2_IRQ_6
+	default 7	if MCP2515_UPDS_2_IRQ_7
+	default 8	if MCP2515_UPDS_2_IRQ_8
+
+endif # MCP2515_UPDS_2
+
+endif # MCP2515_UPDS
+
+endif # CAN
