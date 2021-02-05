@@ -131,6 +131,10 @@ config HAVE_GPIO_1_OUT
 	bool
 	default y
 
+config HAVE_GPIO_1_IRQ
+	bool
+	default y
+
 config HAVE_GPIO_2
 	bool
 	default y
@@ -140,6 +144,10 @@ config HAVE_GPIO_2_IN
 	default y
 
 config HAVE_GPIO_2_OUT
+	bool
+	default y
+
+config HAVE_GPIO_2_IRQ
 	bool
 	default y
 
@@ -155,6 +163,10 @@ config HAVE_GPIO_3_OUT
 	bool
 	default y
 
+config HAVE_GPIO_3_IRQ
+	bool
+	default y
+
 config HAVE_GPIO_4
 	bool
 	default y
@@ -164,6 +176,10 @@ config HAVE_GPIO_4_IN
 	default y
 
 config HAVE_GPIO_4_OUT
+	bool
+	default y
+
+config HAVE_GPIO_4_IRQ
 	bool
 	default y
 

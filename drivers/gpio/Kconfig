@@ -3,14 +3,14 @@
 # see the file kconfig-language.txt in the NuttX tools repository.
 #
 
-menuconfig GPIO
+menuconfig UPDS_GPIO
 	bool "GPIO Support"
 	default n
 	---help---
 		GPIO general support. This includes creation of device structures and 
 		registration in /dev to make GPIO signals available to apps
 
-if GPIO
+if UPDS_GPIO
 
 config GPIO_1
 	bool "Enable GPIO 1"
@@ -19,12 +19,50 @@ config GPIO_1
 	---help---
 	Enables GPIO 1 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_1_OUT
+	depends on GPIO_1
+
+config GPIO_1_OUT
+	bool "Output"
+	depends on HAVE_GPIO_1_OUT
+
+config GPIO_1_IN
+	bool "Input"
+	depends on HAVE_GPIO_1_IN
+
+config GPIO_1_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_1_IRQ
+
+endchoice
+
 config GPIO_2
 	bool "Enable GPIO 2"
 	default n
 	depends on HAVE_GPIO_2
 	---help---
 	Enables GPIO 2 pin and control structures
+
+choice
+	prompt "GPIO Type"
+	default GPIO_2_OUT
+	depends on GPIO_2
+
+config GPIO_2_OUT
+	bool "Output"
+	depends on HAVE_GPIO_2_OUT
+
+config GPIO_2_IN
+	bool "Input"
+	depends on HAVE_GPIO_2_IN
+
+config GPIO_2_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_2_IRQ
+
+endchoice
 
 config GPIO_3
 	bool "Enable GPIO 3"
@@ -33,12 +71,50 @@ config GPIO_3
 	---help---
 	Enables GPIO 3 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_3_OUT
+	depends on GPIO_3
+
+config GPIO_3_OUT
+	bool "Output"
+	depends on HAVE_GPIO_3_OUT
+
+config GPIO_3_IN
+	bool "Input"
+	depends on HAVE_GPIO_3_IN
+
+config GPIO_3_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_3_IRQ
+
+endchoice
+
 config GPIO_4
 	bool "Enable GPIO 4"
 	default n
 	depends on HAVE_GPIO_4
 	---help---
 	Enables GPIO 4 pin and control structures
+
+choice
+	prompt "GPIO Type"
+	default GPIO_4_OUT
+	depends on GPIO_4
+
+config GPIO_4_OUT
+	bool "Output"
+	depends on HAVE_GPIO_4_OUT
+
+config GPIO_4_IN
+	bool "Input"
+	depends on HAVE_GPIO_4_IN
+
+config GPIO_4_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_4_IRQ
+
+endchoice
 
 config GPIO_5
 	bool "Enable GPIO 5"
@@ -47,12 +123,50 @@ config GPIO_5
 	---help---
 	Enables GPIO 5 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_5_OUT
+	depends on GPIO_5
+
+config GPIO_5_OUT
+	bool "Output"
+	depends on HAVE_GPIO_5_OUT
+
+config GPIO_5_IN
+	bool "Input"
+	depends on HAVE_GPIO_5_IN
+
+config GPIO_5_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_5_IRQ
+
+endchoice
+
 config GPIO_6
 	bool "Enable GPIO 6"
 	default n
 	depends on HAVE_GPIO_6
 	---help---
 	Enables GPIO 6 pin and control structures
+
+choice
+	prompt "GPIO Type"
+	default GPIO_6_OUT
+	depends on GPIO_6
+
+config GPIO_6_OUT
+	bool "Output"
+	depends on HAVE_GPIO_6_OUT
+
+config GPIO_6_IN
+	bool "Input"
+	depends on HAVE_GPIO_6_IN
+
+config GPIO_6_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_6_IRQ
+
+endchoice
 
 config GPIO_7
 	bool "Enable GPIO 7"
@@ -61,12 +175,50 @@ config GPIO_7
 	---help---
 	Enables GPIO 7 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_7_OUT
+	depends on GPIO_7
+
+config GPIO_7_OUT
+	bool "Output"
+	depends on HAVE_GPIO_7_OUT
+
+config GPIO_7_IN
+	bool "Input"
+	depends on HAVE_GPIO_7_IN
+
+config GPIO_7_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_7_IRQ
+
+endchoice
+
 config GPIO_8
 	bool "Enable GPIO 8"
 	default n
 	depends on HAVE_GPIO_8
 	---help---
 	Enables GPIO 8 pin and control structures
+
+choice
+	prompt "GPIO Type"
+	default GPIO_8_OUT
+	depends on GPIO_8
+
+config GPIO_8_OUT
+	bool "Output"
+	depends on HAVE_GPIO_8_OUT
+
+config GPIO_8_IN
+	bool "Input"
+	depends on HAVE_GPIO_8_IN
+
+config GPIO_8_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_8_IRQ
+
+endchoice
 
 config GPIO_9
 	bool "Enable GPIO 9"
@@ -75,12 +227,50 @@ config GPIO_9
 	---help---
 	Enables GPIO 9 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_9_OUT
+	depends on GPIO_9
+
+config GPIO_9_OUT
+	bool "Output"
+	depends on HAVE_GPIO_9_OUT
+
+config GPIO_9_IN
+	bool "Input"
+	depends on HAVE_GPIO_9_IN
+
+config GPIO_9_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_9_IRQ
+
+endchoice
+
 config GPIO_10
 	bool "Enable GPIO 10"
 	default n
 	depends on HAVE_GPIO_10
 	---help---
 	Enables GPIO 10 pin and control structures
+
+choice
+	prompt "GPIO Type"
+	default GPIO_10_OUT
+	depends on GPIO_10
+
+config GPIO_10_OUT
+	bool "Output"
+	depends on HAVE_GPIO_10_OUT
+
+config GPIO_10_IN
+	bool "Input"
+	depends on HAVE_GPIO_10_IN
+
+config GPIO_10_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_10_IRQ
+
+endchoice
 
 config GPIO_11
 	bool "Enable GPIO 11"
@@ -89,12 +279,50 @@ config GPIO_11
 	---help---
 	Enables GPIO 11 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_11_OUT
+	depends on GPIO_11
+
+config GPIO_11_OUT
+	bool "Output"
+	depends on HAVE_GPIO_11_OUT
+
+config GPIO_11_IN
+	bool "Input"
+	depends on HAVE_GPIO_11_IN
+
+config GPIO_11_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_11_IRQ
+
+endchoice
+
 config GPIO_12
 	bool "Enable GPIO 12"
 	default n
 	depends on HAVE_GPIO_12
 	---help---
 	Enables GPIO 12 pin and control structures
+
+choice
+	prompt "GPIO Type"
+	default GPIO_12_OUT
+	depends on GPIO_12
+
+config GPIO_12_OUT
+	bool "Output"
+	depends on HAVE_GPIO_12_OUT
+
+config GPIO_12_IN
+	bool "Input"
+	depends on HAVE_GPIO_12_IN
+
+config GPIO_12_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_12_IRQ
+
+endchoice
 
 config GPIO_13
 	bool "Enable GPIO 13"
@@ -103,12 +331,50 @@ config GPIO_13
 	---help---
 	Enables GPIO 13 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_13_OUT
+	depends on GPIO_13
+
+config GPIO_13_OUT
+	bool "Output"
+	depends on HAVE_GPIO_13_OUT
+
+config GPIO_13_IN
+	bool "Input"
+	depends on HAVE_GPIO_13_IN
+
+config GPIO_13_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_13_IRQ
+
+endchoice
+
 config GPIO_14
 	bool "Enable GPIO 14"
 	default n
 	depends on HAVE_GPIO_14
 	---help---
 	Enables GPIO 14 pin and control structures
+
+choice
+	prompt "GPIO Type"
+	default GPIO_14_OUT
+	depends on GPIO_14
+
+config GPIO_14_OUT
+	bool "Output"
+	depends on HAVE_GPIO_14_OUT
+
+config GPIO_14_IN
+	bool "Input"
+	depends on HAVE_GPIO_14_IN
+
+config GPIO_14_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_14_IRQ
+
+endchoice
 
 config GPIO_15
 	bool "Enable GPIO 15"
@@ -117,6 +383,25 @@ config GPIO_15
 	---help---
 	Enables GPIO 15 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_15_OUT
+	depends on GPIO_15
+
+config GPIO_15_OUT
+	bool "Output"
+	depends on HAVE_GPIO_15_OUT
+
+config GPIO_15_IN
+	bool "Input"
+	depends on HAVE_GPIO_15_IN
+
+config GPIO_15_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_15_IRQ
+
+endchoice
+
 config GPIO_16
 	bool "Enable GPIO 16"
 	default n
@@ -124,6 +409,23 @@ config GPIO_16
 	---help---
 	Enables GPIO 16 pin and control structures
 
+choice
+	prompt "GPIO Type"
+	default GPIO_16_OUT
+	depends on GPIO_16
 
+config GPIO_16_OUT
+	bool "Output"
+	depends on HAVE_GPIO_16_OUT
+
+config GPIO_16_IN
+	bool "Input"
+	depends on HAVE_GPIO_16_IN
+
+config GPIO_16_IRQ
+	bool "IRQ Input"
+	depends on HAVE_GPIO_16_IRQ
+
+endchoice
 
 endif # GPIO
