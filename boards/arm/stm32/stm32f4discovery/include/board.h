@@ -47,7 +47,6 @@
 #  include <stdbool.h>
 #endif
 
-/* Do not include STM32-specific header files here */
 
 /****************************************************************************
  * Pre-processor Definitions
@@ -149,6 +148,11 @@
 #define STM32_APB2_TIM9_CLKIN   (2*STM32_PCLK2_FREQUENCY)
 #define STM32_APB2_TIM10_CLKIN  (2*STM32_PCLK2_FREQUENCY)
 #define STM32_APB2_TIM11_CLKIN  (2*STM32_PCLK2_FREQUENCY)
+
+/* GPIO Ports */
+
+#define GPIOE_BSRR              0x40021018
+
 
 /* Timer Frequencies, if APBx is set to 1, frequency is same to APBx
  * otherwise frequency is 2xAPBx.
@@ -324,40 +328,345 @@
 #define GPIO_TIM2_CH2OUT  GPIO_TIM2_CH2OUT_1
 #define GPIO_TIM3_CH3OUT  GPIO_TIM3_CH3OUT_1
 
-/* SPI CS Available */
+/* GPIO Definitions
+   GPIOs defined here MUST match GPIOs declared in board Kconfig
+   Otherwise, enabling GPIOs in Menuconfig could crash compilation
+   Available values are defined in include/nuttx/gpio/gpio_upds.h
+   */
 
-#define GPIO_CS_1         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN2)
+#ifdef CONFIG_GPIO_1
+# if defined(CONFIG_GPIO_1_OUT)
+#  define GPIO_1_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_1_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_1_OUT_OC)
+#  define GPIO_1_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_1_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_1_IN)
+#  define GPIO_1_TYPE     GPIO_INPUT_PIN
+#  define GPIO_1_MODE     0
+# elif defined(CONFIG_GPIO_1_IN_PU)
+#  define GPIO_1_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_1_MODE     0
+# elif defined(CONFIG_GPIO_1_IN_PD)
+#  define GPIO_1_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_1_MODE     0
+# else /* CONFIG_GPIO_1_IRQ */
+#  define GPIO_1_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_1_MODE     0
+# endif
+# define GPIO_1_PIN       2
+# define GPIO_1_PORT      5
+# define GPIO_1_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_1 */
 
-#define GPIO_CS_2         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN4)
+#ifdef CONFIG_GPIO_2
+# if defined(CONFIG_GPIO_2_OUT)
+#  define GPIO_2_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_2_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_2_OUT_OC)
+#  define GPIO_2_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_2_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_2_IN)
+#  define GPIO_2_TYPE     GPIO_INPUT_PIN
+#  define GPIO_2_MODE     0
+# elif defined(CONFIG_GPIO_2_IN_PU)
+#  define GPIO_2_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_2_MODE     0
+# elif defined(CONFIG_GPIO_2_IN_PD)
+#  define GPIO_2_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_2_MODE     0
+# else /* CONFIG_GPIO_2_IRQ */
+#  define GPIO_2_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_2_MODE     0
+# endif
+# define GPIO_2_PIN       4
+# define GPIO_2_PORT      5
+# define GPIO_2_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_2 */
 
-#define GPIO_CS_3         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN5)
+#ifdef CONFIG_GPIO_3
+# if defined(CONFIG_GPIO_3_OUT)
+#  define GPIO_3_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_3_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_3_OUT_OC)
+#  define GPIO_3_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_3_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_3_IN)
+#  define GPIO_3_TYPE     GPIO_INPUT_PIN
+#  define GPIO_3_MODE     0
+# elif defined(CONFIG_GPIO_3_IN_PU)
+#  define GPIO_3_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_3_MODE     0
+# elif defined(CONFIG_GPIO_3_IN_PD)
+#  define GPIO_3_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_3_MODE     0
+# else /* CONFIG_GPIO_3_IRQ */
+#  define GPIO_3_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_3_MODE     0
+# endif
+# define GPIO_3_PIN       5
+# define GPIO_3_PORT      5
+# define GPIO_3_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_3 */
 
-#define GPIO_CS_4         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN6)
+#ifdef CONFIG_GPIO_4
+# if defined(CONFIG_GPIO_4_OUT)
+#  define GPIO_4_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_4_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_4_OUT_OC)
+#  define GPIO_4_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_4_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_4_IN)
+#  define GPIO_4_TYPE     GPIO_INPUT_PIN
+#  define GPIO_4_MODE     0
+# elif defined(CONFIG_GPIO_4_IN_PU)
+#  define GPIO_4_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_4_MODE     0
+# elif defined(CONFIG_GPIO_4_IN_PD)
+#  define GPIO_4_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_4_MODE     0
+# else /* CONFIG_GPIO_4_IRQ */
+#  define GPIO_4_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_4_MODE     0
+# endif
+# define GPIO_4_PIN       6
+# define GPIO_4_PORT      5
+# define GPIO_4_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_4 */
 
-#define GPIO_CS_5         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN7)
+#ifdef CONFIG_GPIO_5
+# if defined(CONFIG_GPIO_5_OUT)
+#  define GPIO_5_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_5_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_5_OUT_OC)
+#  define GPIO_5_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_5_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_5_IN)
+#  define GPIO_5_TYPE     GPIO_INPUT_PIN
+#  define GPIO_5_MODE     0
+# elif defined(CONFIG_GPIO_5_IN_PU)
+#  define GPIO_5_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_5_MODE     0
+# elif defined(CONFIG_GPIO_5_IN_PD)
+#  define GPIO_5_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_5_MODE     0
+# else /* CONFIG_GPIO_5_IRQ */
+#  define GPIO_5_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_5_MODE     0
+# endif
+# define GPIO_5_PIN       7
+# define GPIO_5_PORT      5
+# define GPIO_5_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_5 */
 
-#define GPIO_CS_6         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN8)
+#ifdef CONFIG_GPIO_6
+# if defined(CONFIG_GPIO_6_OUT)
+#  define GPIO_6_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_6_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_6_OUT_OC)
+#  define GPIO_6_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_6_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_6_IN)
+#  define GPIO_6_TYPE     GPIO_INPUT_PIN
+#  define GPIO_6_MODE     0
+# elif defined(CONFIG_GPIO_6_IN_PU)
+#  define GPIO_6_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_6_MODE     0
+# elif defined(CONFIG_GPIO_6_IN_PD)
+#  define GPIO_6_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_6_MODE     0
+# else /* CONFIG_GPIO_6_IRQ */
+#  define GPIO_6_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_6_MODE     0
+# endif
+# define GPIO_6_PIN       8
+# define GPIO_6_PORT      5
+# define GPIO_6_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_6 */
 
-#define GPIO_CS_7         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN9)
+#ifdef CONFIG_GPIO_7
+# if defined(CONFIG_GPIO_7_OUT)
+#  define GPIO_7_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_7_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_7_OUT_OC)
+#  define GPIO_7_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_7_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_7_IN)
+#  define GPIO_7_TYPE     GPIO_INPUT_PIN
+#  define GPIO_7_MODE     0
+# elif defined(CONFIG_GPIO_7_IN_PU)
+#  define GPIO_7_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_7_MODE     0
+# elif defined(CONFIG_GPIO_7_IN_PD)
+#  define GPIO_7_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_7_MODE     0
+# else /* CONFIG_GPIO_7_IRQ */
+#  define GPIO_7_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_7_MODE     0
+# endif
+# define GPIO_7_PIN       9
+# define GPIO_7_PORT      5
+# define GPIO_7_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_7 */
 
-#define GPIO_CS_8         (GPIO_OUTPUT|GPIO_PUSHPULL|GPIO_SPEED_50MHz|\
-                           GPIO_OUTPUT_SET|GPIO_PORTE|GPIO_PIN10)
+#ifdef CONFIG_GPIO_8
+# if defined(CONFIG_GPIO_8_OUT)
+#  define GPIO_8_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_8_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_8_OUT_OC)
+#  define GPIO_8_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_8_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_8_IN)
+#  define GPIO_8_TYPE     GPIO_INPUT_PIN
+#  define GPIO_8_MODE     0
+# elif defined(CONFIG_GPIO_8_IN_PU)
+#  define GPIO_8_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_8_MODE     0
+# elif defined(CONFIG_GPIO_8_IN_PD)
+#  define GPIO_8_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_8_MODE     0
+# else /* CONFIG_GPIO_8_IRQ */
+#  define GPIO_8_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_8_MODE     0
+# endif
+# define GPIO_8_PIN       10
+# define GPIO_8_PORT      5
+# define GPIO_8_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_8 */
+
+#ifdef CONFIG_GPIO_9
+# if defined(CONFIG_GPIO_9_OUT)
+#  define GPIO_9_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_9_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_9_OUT_OC)
+#  define GPIO_9_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_9_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_9_IN)
+#  define GPIO_9_TYPE     GPIO_INPUT_PIN
+#  define GPIO_9_MODE     0
+# elif defined(CONFIG_GPIO_9_IN_PU)
+#  define GPIO_9_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_9_MODE     0
+# elif defined(CONFIG_GPIO_9_IN_PD)
+#  define GPIO_9_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_9_MODE     0
+# else /* CONFIG_GPIO_9_IRQ */
+#  define GPIO_9_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_9_MODE     0
+# endif
+# define GPIO_9_PIN       11
+# define GPIO_9_PORT      5
+# define GPIO_9_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_9 */
+
+#ifdef CONFIG_GPIO_10
+# if defined(CONFIG_GPIO_10_OUT)
+#  define GPIO_10_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_10_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_10_OUT_OC)
+#  define GPIO_10_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_10_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_10_IN)
+#  define GPIO_10_TYPE     GPIO_INPUT_PIN
+#  define GPIO_10_MODE     0
+# elif defined(CONFIG_GPIO_10_IN_PU)
+#  define GPIO_10_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_10_MODE     0
+# elif defined(CONFIG_GPIO_10_IN_PD)
+#  define GPIO_10_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_10_MODE     0
+# else /* CONFIG_GPIO_10_IRQ */
+#  define GPIO_10_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_10_MODE     0
+# endif
+# define GPIO_10_PIN       12
+# define GPIO_10_PORT      5
+# define GPIO_10_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_10 */
+
+#ifdef CONFIG_GPIO_11
+# if defined(CONFIG_GPIO_11_OUT)
+#  define GPIO_11_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_11_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_11_OUT_OC)
+#  define GPIO_11_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_11_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_11_IN)
+#  define GPIO_11_TYPE     GPIO_INPUT_PIN
+#  define GPIO_11_MODE     0
+# elif defined(CONFIG_GPIO_11_IN_PU)
+#  define GPIO_11_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_11_MODE     0
+# elif defined(CONFIG_GPIO_11_IN_PD)
+#  define GPIO_11_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_11_MODE     0
+# else /* CONFIG_GPIO_11_IRQ */
+#  define GPIO_11_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_11_MODE     0
+# endif
+# define GPIO_11_PIN       13
+# define GPIO_11_PORT      5
+# define GPIO_11_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_11 */
+
+#ifdef CONFIG_GPIO_12
+# if defined(CONFIG_GPIO_12_OUT)
+#  define GPIO_12_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_12_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_12_OUT_OC)
+#  define GPIO_12_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_12_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_12_IN)
+#  define GPIO_12_TYPE     GPIO_INPUT_PIN
+#  define GPIO_12_MODE     0
+# elif defined(CONFIG_GPIO_12_IN_PU)
+#  define GPIO_12_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_12_MODE     0
+# elif defined(CONFIG_GPIO_12_IN_PD)
+#  define GPIO_12_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_12_MODE     0
+# else /* CONFIG_GPIO_12_IRQ */
+#  define GPIO_12_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_12_MODE     0
+# endif
+# define GPIO_12_PIN       14
+# define GPIO_12_PORT      5
+# define GPIO_12_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_12 */
+
+#ifdef CONFIG_GPIO_13
+# if defined(CONFIG_GPIO_13_OUT)
+#  define GPIO_13_TYPE     GPIO_OUTPUT_PIN
+#  define GPIO_13_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_13_OUT_OC)
+#  define GPIO_13_TYPE     GPIO_OUTPUT_PIN_OPENCOLLECTOR
+#  define GPIO_13_MODE     GPIO_MEDIUM_SPEED
+# elif defined(CONFIG_GPIO_13_IN)
+#  define GPIO_13_TYPE     GPIO_INPUT_PIN
+#  define GPIO_13_MODE     0
+# elif defined(CONFIG_GPIO_13_IN_PU)
+#  define GPIO_13_TYPE     GPIO_INPUT_PIN_PULLUP
+#  define GPIO_13_MODE     0
+# elif defined(CONFIG_GPIO_13_IN_PD)
+#  define GPIO_13_TYPE     GPIO_INPUT_PIN_PULLDOWN
+#  define GPIO_13_MODE     0
+# else /* CONFIG_GPIO_13_IRQ */
+#  define GPIO_13_TYPE     GPIO_INTERRUPT_PIN
+#  define GPIO_13_MODE     0
+# endif
+# define GPIO_13_PIN       15
+# define GPIO_13_PORT      5
+# define GPIO_13_ADDR      GPIOE_BSRR
+#endif  /* CONFIG_GPIO_13 */
+
+/* Available pins in PORTE: 2,4,5,6,7,8,9,10,11,12,13,14,15 */
+
+
 #define SPI_CS_MAX        8
 
 /* SPI IRQ Available */
 
 #define GPIO_IRQ_1        (GPIO_INPUT|GPIO_FLOAT|GPIO_EXTI|GPIO_PORTE|GPIO_PIN11)
-#define GPIO_IRQ_2        (GPIO_INPUT|GPIO_FLOAT|GPIO_EXTI|GPIO_PORTE|GPIO_PIN12)
-#define GPIO_IRQ_3        (GPIO_INPUT|GPIO_FLOAT|GPIO_EXTI|GPIO_PORTE|GPIO_PIN13)
-#define GPIO_IRQ_4        (GPIO_INPUT|GPIO_FLOAT|GPIO_EXTI|GPIO_PORTE|GPIO_PIN14)
-#define GPIO_IRQ_5        (GPIO_INPUT|GPIO_FLOAT|GPIO_EXTI|GPIO_PORTE|GPIO_PIN15)
 #define SPI_IRQ_MAX       5
 
 

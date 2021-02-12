@@ -127,7 +127,19 @@ config HAVE_GPIO_1_IN
 	bool
 	default y
 
+config HAVE_GPIO_1_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_1_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_1_OUT
+	bool
+	default y
+
+config HAVE_GPIO_1_OUT_OC
 	bool
 	default y
 
@@ -143,7 +155,19 @@ config HAVE_GPIO_2_IN
 	bool
 	default y
 
+config HAVE_GPIO_2_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_2_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_2_OUT
+	bool
+	default y
+
+config HAVE_GPIO_2_OUT_OC
 	bool
 	default y
 
@@ -159,7 +183,19 @@ config HAVE_GPIO_3_IN
 	bool
 	default y
 
+config HAVE_GPIO_3_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_3_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_3_OUT
+	bool
+	default y
+
+config HAVE_GPIO_3_OUT_OC
 	bool
 	default y
 
@@ -175,7 +211,19 @@ config HAVE_GPIO_4_IN
 	bool
 	default y
 
+config HAVE_GPIO_4_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_4_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_4_OUT
+	bool
+	default y
+
+config HAVE_GPIO_4_OUT_OC
 	bool
 	default y
 
@@ -191,7 +239,19 @@ config HAVE_GPIO_5_IN
 	bool
 	default y
 
+config HAVE_GPIO_5_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_5_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_5_OUT
+	bool
+	default y
+
+config HAVE_GPIO_5_OUT_OC
 	bool
 	default y
 
@@ -207,7 +267,19 @@ config HAVE_GPIO_6_IN
 	bool
 	default y
 
+config HAVE_GPIO_6_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_6_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_6_OUT
+	bool
+	default y
+
+config HAVE_GPIO_6_OUT_OC
 	bool
 	default y
 
@@ -223,7 +295,19 @@ config HAVE_GPIO_7_IN
 	bool
 	default y
 
+config HAVE_GPIO_7_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_7_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_7_OUT
+	bool
+	default y
+
+config HAVE_GPIO_7_OUT_OC
 	bool
 	default y
 
@@ -239,11 +323,163 @@ config HAVE_GPIO_8_IN
 	bool
 	default y
 
+config HAVE_GPIO_8_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_8_IN_PD
+	bool
+	default y
+
 config HAVE_GPIO_8_OUT
 	bool
 	default y
 
+config HAVE_GPIO_8_OUT_OC
+	bool
+	default y
+
 config HAVE_GPIO_8_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_9
+	bool
+	default y
+
+config HAVE_GPIO_9_IN
+	bool
+	default y
+
+config HAVE_GPIO_9_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_9_IN_PD
+	bool
+	default y
+
+config HAVE_GPIO_9_OUT
+	bool
+	default y
+
+config HAVE_GPIO_9_OUT_OC
+	bool
+	default y
+
+config HAVE_GPIO_9_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_10
+	bool
+	default y
+
+config HAVE_GPIO_10_IN
+	bool
+	default y
+
+config HAVE_GPIO_10_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_10_IN_PD
+	bool
+	default y
+
+config HAVE_GPIO_10_OUT
+	bool
+	default y
+
+config HAVE_GPIO_10_OUT_OC
+	bool
+	default y
+
+config HAVE_GPIO_11_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_11
+	bool
+	default y
+
+config HAVE_GPIO_11_IN
+	bool
+	default y
+
+config HAVE_GPIO_11_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_11_IN_PD
+	bool
+	default y
+
+config HAVE_GPIO_11_OUT
+	bool
+	default y
+
+config HAVE_GPIO_11_OUT_OC
+	bool
+	default y
+
+config HAVE_GPIO_11_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_12
+	bool
+	default y
+
+config HAVE_GPIO_12_IN
+	bool
+	default y
+
+config HAVE_GPIO_12_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_12_IN_PD
+	bool
+	default y
+
+config HAVE_GPIO_12_OUT
+	bool
+	default y
+
+config HAVE_GPIO_12_OUT_OC
+	bool
+	default y
+
+config HAVE_GPIO_12_IRQ
+	bool
+	default y
+
+config HAVE_GPIO_13
+	bool
+	default y
+
+config HAVE_GPIO_13_IN
+	bool
+	default y
+
+config HAVE_GPIO_13_IN_PU
+	bool
+	default y
+
+config HAVE_GPIO_13_IN_PD
+	bool
+	default y
+
+config HAVE_GPIO_13_OUT
+	bool
+	default y
+
+config HAVE_GPIO_13_OUT_OC
+	bool
+	default y
+
+config HAVE_GPIO_13_IRQ
 	bool
 	default y
 

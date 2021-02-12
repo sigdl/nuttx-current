@@ -44,6 +44,7 @@ include audio/Make.defs
 include bch/Make.defs
 include can/Make.defs
 include crypto/Make.defs
+include gpio/Make.defs
 include i2c/Make.defs
 include i2s/Make.defs
 include input/Make.defs

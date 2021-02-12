@@ -64,6 +64,7 @@
 /************************************************************************************
  * Private Function Prototypes
  ************************************************************************************/
+uint8_t upds_gpio_initialize(void);
 uint8_t upds_spi_initialize(void);
 
 /****************************************************************************
@@ -156,6 +157,13 @@ void stm32_boardinitialize(void)
 void board_early_initialize(void)
 {
   uint8_t ret;
+
+#ifdef CONFIG_UPDS_GPIO
+
+  /* Perform board-specific GPIO initialization */
+  ret = upds_gpio_initialize();
+
+#endif
 
 #ifdef CONFIG_UPDS_SPI
 

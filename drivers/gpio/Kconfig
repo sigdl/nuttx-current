@@ -23,14 +23,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_1_OUT
 	depends on GPIO_1
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_1_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_1_OUT
 
+config GPIO_1_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_1_OUT_OC
+
 config GPIO_1_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_1_IN
+
+config GPIO_1_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_1_IN_PU
+
+config GPIO_1_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_1_IN_PD
 
 config GPIO_1_IRQ
 	bool "IRQ Input"
@@ -49,14 +70,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_2_OUT
 	depends on GPIO_2
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_2_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_2_OUT
 
+config GPIO_2_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_2_OUT_OC
+
 config GPIO_2_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_2_IN
+
+config GPIO_2_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_2_IN_PU
+
+config GPIO_2_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_2_IN_PD
 
 config GPIO_2_IRQ
 	bool "IRQ Input"
@@ -75,14 +117,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_3_OUT
 	depends on GPIO_3
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_3_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_3_OUT
 
+config GPIO_3_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_3_OUT_OC
+
 config GPIO_3_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_3_IN
+
+config GPIO_3_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_3_IN_PU
+
+config GPIO_3_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_3_IN_PD
 
 config GPIO_3_IRQ
 	bool "IRQ Input"
@@ -101,14 +164,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_4_OUT
 	depends on GPIO_4
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_4_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_4_OUT
 
+config GPIO_4_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_4_OUT_OC
+
 config GPIO_4_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_4_IN
+
+config GPIO_4_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_4_IN_PU
+
+config GPIO_4_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_4_IN_PD
 
 config GPIO_4_IRQ
 	bool "IRQ Input"
@@ -127,14 +211,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_5_OUT
 	depends on GPIO_5
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_5_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_5_OUT
 
+config GPIO_5_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_5_OUT_OC
+
 config GPIO_5_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_5_IN
+
+config GPIO_5_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_5_IN_PU
+
+config GPIO_5_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_5_IN_PD
 
 config GPIO_5_IRQ
 	bool "IRQ Input"
@@ -153,14 +258,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_6_OUT
 	depends on GPIO_6
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_6_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_6_OUT
 
+config GPIO_6_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_6_OUT_OC
+
 config GPIO_6_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_6_IN
+
+config GPIO_6_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_6_IN_PU
+
+config GPIO_6_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_6_IN_PD
 
 config GPIO_6_IRQ
 	bool "IRQ Input"
@@ -179,14 +305,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_7_OUT
 	depends on GPIO_7
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_7_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_7_OUT
 
+config GPIO_7_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_7_OUT_OC
+
 config GPIO_7_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_7_IN
+
+config GPIO_7_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_7_IN_PU
+
+config GPIO_7_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_7_IN_PD
 
 config GPIO_7_IRQ
 	bool "IRQ Input"
@@ -205,14 +352,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_8_OUT
 	depends on GPIO_8
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_8_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_8_OUT
 
+config GPIO_8_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_8_OUT_OC
+
 config GPIO_8_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_8_IN
+
+config GPIO_8_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_8_IN_PU
+
+config GPIO_8_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_8_IN_PD
 
 config GPIO_8_IRQ
 	bool "IRQ Input"
@@ -231,14 +399,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_9_OUT
 	depends on GPIO_9
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_9_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_9_OUT
 
+config GPIO_9_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_9_OUT_OC
+
 config GPIO_9_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_9_IN
+
+config GPIO_9_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_9_IN_PU
+
+config GPIO_9_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_9_IN_PD
 
 config GPIO_9_IRQ
 	bool "IRQ Input"
@@ -257,14 +446,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_10_OUT
 	depends on GPIO_10
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_10_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_10_OUT
 
+config GPIO_10_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_10_OUT_OC
+
 config GPIO_10_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_10_IN
+
+config GPIO_10_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_10_IN_PU
+
+config GPIO_10_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_10_IN_PD
 
 config GPIO_10_IRQ
 	bool "IRQ Input"
@@ -283,14 +493,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_11_OUT
 	depends on GPIO_11
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_11_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_11_OUT
 
+config GPIO_11_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_11_OUT_OC
+
 config GPIO_11_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_11_IN
+
+config GPIO_11_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_11_IN_PU
+
+config GPIO_11_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_11_IN_PD
 
 config GPIO_11_IRQ
 	bool "IRQ Input"
@@ -309,14 +540,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_12_OUT
 	depends on GPIO_12
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_12_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_12_OUT
 
+config GPIO_12_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_12_OUT_OC
+
 config GPIO_12_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_12_IN
+
+config GPIO_12_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_12_IN_PU
+
+config GPIO_12_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_12_IN_PD
 
 config GPIO_12_IRQ
 	bool "IRQ Input"
@@ -335,14 +587,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_13_OUT
 	depends on GPIO_13
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_13_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_13_OUT
 
+config GPIO_13_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_13_OUT_OC
+
 config GPIO_13_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_13_IN
+
+config GPIO_13_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_13_IN_PU
+
+config GPIO_13_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_13_IN_PD
 
 config GPIO_13_IRQ
 	bool "IRQ Input"
@@ -361,14 +634,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_14_OUT
 	depends on GPIO_14
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_14_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_14_OUT
 
+config GPIO_14_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_14_OUT_OC
+
 config GPIO_14_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_14_IN
+
+config GPIO_14_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_14_IN_PU
+
+config GPIO_14_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_14_IN_PD
 
 config GPIO_14_IRQ
 	bool "IRQ Input"
@@ -387,14 +681,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_15_OUT
 	depends on GPIO_15
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_15_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_15_OUT
 
+config GPIO_15_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_15_OUT_OC
+
 config GPIO_15_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_15_IN
+
+config GPIO_15_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_15_IN_PU
+
+config GPIO_15_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_15_IN_PD
 
 config GPIO_15_IRQ
 	bool "IRQ Input"
@@ -413,14 +728,35 @@ choice
 	prompt "GPIO Type"
 	default GPIO_16_OUT
 	depends on GPIO_16
+	---help---
+	Configures GPIO type:
+	Output Push-Pull, Output Open Collector, Input Float, Input Pull-Up,
+	Input Pull-Down or Input Interrupt
+
+	Output Speed must be configured manually in arch/board/board.h. Default
+	is GPIO_MEDIUM_SPEED
+	
+	Some types may not be available in some boards. Check board documentation
 
 config GPIO_16_OUT
-	bool "Output"
+	bool "Output Push-Pull"
 	depends on HAVE_GPIO_16_OUT
 
+config GPIO_16_OUT_OC
+	bool "Output Open Collector"
+	depends on HAVE_GPIO_16_OUT_OC
+
 config GPIO_16_IN
-	bool "Input"
+	bool "Input Floating"
 	depends on HAVE_GPIO_16_IN
+
+config GPIO_16_IN_PU
+	bool "Input Pull-Up"
+	depends on HAVE_GPIO_16_IN_PU
+
+config GPIO_16_IN_PD
+	bool "Input Pull-Down"
+	depends on HAVE_GPIO_16_IN_PD
 
 config GPIO_16_IRQ
 	bool "IRQ Input"
